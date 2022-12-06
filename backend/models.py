@@ -14,13 +14,12 @@ class User(db.Model):
 
     __tablename__ = "users"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.Text, primary_key=True, unique=True)
     email = db.Column(db.Text, nullable=False, unique=True)
     first_name = db.Column(db.Text, nullable=False)
     last_name = db.Column(db.Text, nullable=False)
     isAdmin = db.Column(db.Boolean, nullable=False, default=False)
     isHost = db.Column(db.Boolean, nullable=False, default=False)
-
 
     def to_dict(self):
         """Serialize user to a dict of user info."""
@@ -32,6 +31,7 @@ class User(db.Model):
             "last_name": self.last_name,
         }
 
+
 class Listing(db.Model):
     """Listing."""
 
@@ -40,7 +40,7 @@ class Listing(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     host_username = db.Column(
         db.Text,
-        db.ForeignKey('users.email', ondelete="cascade"),
+        db.ForeignKey('users.username', ondelete="cascade"),
         nullable=False,
     )
     address = db.Column(
@@ -51,6 +51,7 @@ class Listing(db.Model):
         db.Integer,
         nullable=False
     )
+
 
 class Photo(db.Model):
     """Photo."""
@@ -68,20 +69,21 @@ class Photo(db.Model):
         nullable=False
     )
 
+
 class Message(db.Model):
     """Message."""
 
     __tablename__ = "messages"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    sender_id = db.Column(
-        db.Integer,
-        db.ForeignKey('users.id', ondelete="cascade"),
+    sender_username = db.Column(
+        db.Text,
+        db.ForeignKey('users.username', ondelete="cascade"),
         nullable=False,
     )
-    receiver_id = db.Column(
-        db.Integer,
-        db.ForeignKey('users.id', ondelete="cascade"),
+    receiver_username = db.Column(
+        db.Text,
+        db.ForeignKey('users.username', ondelete="cascade"),
         nullable=False,
     )
     text = db.Column(
@@ -93,9 +95,6 @@ class Message(db.Model):
         nullable=False,
         default=datetime.utcnow,
     )
-
-
-
 
 
 def connect_db(app):
