@@ -15,6 +15,7 @@ class User(db.Model):
     __tablename__ = "users"
 
     username = db.Column(db.Text, primary_key=True, unique=True)
+    password = db.Column(db.Text, nullable=False)
     email = db.Column(db.Text, nullable=False, unique=True)
     first_name = db.Column(db.Text, nullable=False)
     last_name = db.Column(db.Text, nullable=False)
@@ -25,11 +26,29 @@ class User(db.Model):
         """Serialize user to a dict of user info."""
 
         return {
-            "id": self.id,
+            "username": self.username,
             "email": self.email,
             "first_name": self.first_name,
             "last_name": self.last_name,
+            "isAdmin": self.isAdmin,
+            "isHost": self.isHost
         }
+
+    messages_from = db.relationship(
+        'Message',
+        foreign_keys='Message.sender_username',
+        backref="user_from")
+
+    messages_to = db.relationship(
+        'Message',
+        foreign_keys='Message.receiver_username',
+        backref="user_to")
+
+    listings = db.relationship('Listing', backref="user")
+
+    def __repr__(self):
+        return f"""<Username: {self.username},
+        Name: {self.first_name} {self.last_name}>"""
 
 
 class Listing(db.Model):
@@ -43,7 +62,15 @@ class Listing(db.Model):
         db.ForeignKey('users.username', ondelete="cascade"),
         nullable=False,
     )
+    title = db.Column(
+        db.Text,
+        nullable=False,
+    )
     address = db.Column(
+        db.Text,
+        nullable=False
+    )
+    description = db.Column(
         db.Text,
         nullable=False
     )
@@ -51,6 +78,11 @@ class Listing(db.Model):
         db.Integer,
         nullable=False
     )
+
+    def __repr__(self):
+        return f"""<Host_username: {self.host_username},
+        Address: {self.address},
+        Price: {self.price}>"""
 
 
 class Photo(db.Model):
@@ -95,6 +127,12 @@ class Message(db.Model):
         nullable=False,
         default=datetime.utcnow,
     )
+
+    def __repr__(self):
+        return f"""<Message:
+        Sender_username: {self.sender_username},
+        Receiver_username: {self.receiver_username},
+        Id: {self.id}>"""
 
 
 def connect_db(app):
