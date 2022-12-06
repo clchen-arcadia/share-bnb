@@ -47,8 +47,50 @@ class User(db.Model):
     listings = db.relationship('Listing', backref="user")
 
     def __repr__(self):
-        return f"""<Username: {self.username},
-        Name: {self.first_name} {self.last_name}>"""
+        return f"""<User: {self.username}, {self.email}, {self.first_name} {self.last_name}>"""
+
+    @classmethod
+    def signup(cls, username, email, password, first_name, last_name):
+        """Sign up user.
+
+        Hashes password and adds user to system.
+        """
+
+        hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
+
+        user = User (
+            username=username,
+            email=email,
+            password=hashed_pwd,
+            first_name=first_name,
+            last_name=last_name,
+        )
+
+        db.session.add(user)
+        return user
+
+    @classmethod
+    def authenticate(cls, username, password):
+        """Find user with `username` and `password`.
+
+        This is a class method (call it on the class, not an individual user.)
+        It searches for a user whose password hash matches this password
+        and, if it finds such a user, returns that user object.
+
+        If this can't find matching user (or if password is wrong), returns
+        False.
+        """
+
+        # user = cls.query.get(username)
+        user = cls.query.filter_by(username=username).first()
+
+
+        if user:
+            is_auth = bcrypt.check_password_hash(user.password, password)
+            if is_auth:
+                return user
+
+        return False
 
 
 class Listing(db.Model):
@@ -75,12 +117,13 @@ class Listing(db.Model):
         nullable=False
     )
     price = db.Column(
-        db.Integer,
+        db.Numeric(10, 2),
         nullable=False
     )
 
     def __repr__(self):
-        return f"""<Host_username: {self.host_username},
+        return f"""<Listing
+        Host_username: {self.host_username},
         Address: {self.address},
         Price: {self.price}>"""
 
@@ -100,6 +143,12 @@ class Photo(db.Model):
         db.Text,
         nullable=False
     )
+
+    def __repr__(self):
+        return f"""<Photo
+        id: {self.id},
+        listing_id: {self.listing_id},
+        filepath: {self.filepath}"""
 
 
 class Message(db.Model):
