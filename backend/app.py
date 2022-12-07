@@ -139,13 +139,14 @@ def signup():
 @app.route('/upload', methods=['POST'])
 @cross_origin()
 def handle_file_upload():
-    #TODO: validate this incoming data
+    # TODO: validate this incoming data
 
     file = request.files['file']
     file.save(os.path.join(UPLOAD_FOLDER, secure_filename(file.filename)))
     upload_file(f"uploads/{file.filename}", BUCKET)
 
     return jsonify("success")
+
 
 @app.route("/pics", methods=['GET'])
 @cross_origin()
