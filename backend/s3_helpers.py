@@ -41,3 +41,25 @@ def show_image(bucket):
         pass
     print("[INFO] : The contents inside show_image = ", public_urls)
     return public_urls
+
+def show_one_image(bucket, key):
+    s3_client = boto3.client(
+        's3',
+        region_name=my_region,
+        aws_access_key_id=my_id,
+        aws_secret_access_key=my_secret_key)
+    public_urls = []
+    try:
+        for item in s3_client.list_objects(Bucket=bucket)['Contents']:
+            print("TEST>>>>>> item is", item)
+            presigned_url = s3_client.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': bucket, 'Key': key},
+                ExpiresIn=100
+            )
+            public_urls.append(presigned_url)
+    except Exception as e:
+        print("ERROR: ", e)
+        pass
+    print("[INFO] : The contents inside show_image = ", public_urls)
+    return public_urls
