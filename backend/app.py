@@ -2,36 +2,25 @@ import os
 
 from dotenv import load_dotenv
 from flask_debugtoolbar import DebugToolbarExtension
-
 from sqlalchemy.exc import (IntegrityError)
-
-from forms import (
-    UserAddForm, UserEditForm, LoginForm, MessageForm, UserSignup
-)
-
+from forms import (UserSignup)
 from flask import (
     Flask,
-    render_template,
     request,
-    flash,
-    redirect,
     session,
     g,
     jsonify
 )
-
 from werkzeug.datastructures import MultiDict
-
 from models import db, connect_db, User
+from middleware import test_decorator
+
 
 app = Flask(__name__)
 
 load_dotenv()
 
 CURR_USER_KEY = "curr_user"
-
-
-
 
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
@@ -50,6 +39,7 @@ connect_db(app)
 ##############################################################################
 # app.before_requests---these run before every request!
 
+
 @app.before_request
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
@@ -60,15 +50,9 @@ def add_user_to_g():
     else:
         g.user = None
 
-
-# @app.before_request
-# def add_csrf_to_g():
-#     """Add a csrf form to g"""
-
-#     g.csrf_form = CSRFProtectForm()
-
 ##############################################################################
 # Helper functions
+
 
 def do_login(user):
     """Log in user."""
@@ -85,22 +69,19 @@ def do_logout():
 ##############################################################################
 # Routes
 
+
 @app.route('/signup', methods=["POST"])
 def signup():
     """Handle user signup.
 
-    Create new user and add to DB. Redirect to home page.
+    If form valid: Create new user and add to DB. Return user (JSON)
 
-    If form not valid, present form.
+    If form not valid: return error(JSON).
 
-    If the there already is a user with that username: flash message
-    and re-present form.
+    If the there already is a user with that username: return error message (JSON)
     """
     data = MultiDict(mapping=request.json)
     form = UserSignup(data)
-
-    # ..., meta={'csrf': False}
-
 
     if form.validate():
 
@@ -111,15 +92,29 @@ def signup():
         last_name = data["last_name"]
 
         try:
-            user = User.signup(username, email, password, first_name, last_name)
+            user = User.signup(username, email, password,
+                               first_name, last_name)
             db.session.commit()
 
         except IntegrityError:
             return jsonify(errors=IntegrityError)
 
-
-        print("TEST>>>>>>>>>>>>>>>>> user.to_dict", user.to_dict)
         return jsonify(user.to_dict())
+        # TODO: NEED TO RETURN TOKEN
 
     else:
         return jsonify(errors=form.errors)
+
+
+@app.route('/test', methods=["GET"])
+@test_decorator
+def hello():
+    return jsonify("hello")
+
+
+# @test_decorator  # going to call test_decorator and pass the joel fxn
+# def joel(a, b):
+#     return a + b
+
+
+# joel = test_decorator(joel)
