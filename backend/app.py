@@ -16,12 +16,18 @@ from flask import (
 
 from flask_cors import CORS, cross_origin
 
+from werkzeug.utils import secure_filename
 from werkzeug.datastructures import MultiDict
 from models import db, connect_db, User
 from middleware import test_decorator
 
+from s3_helpers import upload_file
+
 
 app = Flask(__name__)
+
+UPLOAD_FOLDER = "uploads"
+BUCKET = "rithm-share-bnb"
 
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -132,10 +138,11 @@ def signup():
 
 @app.route('/upload', methods=['POST'])
 @cross_origin()
-def upload_file():
+def handle_file_upload():
     #TODO: validate this incoming data
-    breakpoint()
-    print("request.json>>>>>>>>>>>>>", request.json['selectedFile'])
-    print("request.data>>>>>>>>>>>>>", type(request.data))
 
-    return jsonify("hello")
+    file = request.files['file']
+    file.save(os.path.join(UPLOAD_FOLDER, secure_filename(file.filename)))
+    upload_file(f"uploads/{file.filename}", BUCKET)
+
+    return jsonify("success")
