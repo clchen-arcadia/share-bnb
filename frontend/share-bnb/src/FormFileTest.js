@@ -15,19 +15,10 @@ function FormFileTest() {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("file", selectedFile);
-
     console.log("formData=", formData);
-    const dataSubmit = {
-      name,
-      selectedFile
-    };
-    console.log("dataSubmit=", dataSubmit);
-    for(let data of formData.values) {
-      console.log("data is", data);
-    }
 
     axios
-      .post(`${BASE_URL}/upload`, dataSubmit)
+      .post(`${BASE_URL}/upload`, formData)
       .then((res) => {
         alert("File Upload success");
       })

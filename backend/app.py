@@ -1,7 +1,9 @@
 import os
 
 from dotenv import load_dotenv
-from flask_debugtoolbar import DebugToolbarExtension
+
+# from flask_debugtoolbar import DebugToolbarExtension
+
 from sqlalchemy.exc import (IntegrityError)
 from forms import (UserSignup)
 from flask import (
@@ -11,12 +13,19 @@ from flask import (
     g,
     jsonify
 )
+
+from flask_cors import CORS, cross_origin
+
 from werkzeug.datastructures import MultiDict
 from models import db, connect_db, User
 from middleware import test_decorator
 
 
 app = Flask(__name__)
+
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
 
 load_dotenv()
 
@@ -30,7 +39,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
-toolbar = DebugToolbarExtension(app)
+
+
+# toolbar = DebugToolbarExtension(app)
 
 app.config['WTF_CSRF_ENABLED'] = False
 
@@ -106,10 +117,10 @@ def signup():
         return jsonify(errors=form.errors)
 
 
-@app.route('/test', methods=["GET"])
-@test_decorator
-def hello():
-    return jsonify("hello")
+# @app.route('/test', methods=["GET"])
+# @test_decorator
+# def hello():
+#     return jsonify("hello")
 
 
 # @test_decorator  # going to call test_decorator and pass the joel fxn
@@ -118,3 +129,13 @@ def hello():
 
 
 # joel = test_decorator(joel)
+
+@app.route('/upload', methods=['POST'])
+@cross_origin()
+def upload_file():
+    #TODO: validate this incoming data
+    breakpoint()
+    print("request.json>>>>>>>>>>>>>", request.json['selectedFile'])
+    print("request.data>>>>>>>>>>>>>", type(request.data))
+
+    return jsonify("hello")
