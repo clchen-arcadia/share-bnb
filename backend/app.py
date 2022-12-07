@@ -21,7 +21,7 @@ from werkzeug.datastructures import MultiDict
 from models import db, connect_db, User
 from middleware import test_decorator
 
-from s3_helpers import upload_file, show_image
+from s3_helpers import upload_file, show_image, show_one_image
 
 
 app = Flask(__name__)
@@ -147,6 +147,14 @@ def handle_file_upload():
 
     return jsonify("success")
 
+
+
+@app.route("/pics/1", methods=['GET'])
+@cross_origin()
+def list_one_photo():
+    content = show_one_image(BUCKET, 'uploads/cute-dog-headshot.jpeg')
+    print("contents is>>>>>>>>>>>>>", type(content), content)
+    return jsonify({'content': content})
 
 @app.route("/pics", methods=['GET'])
 @cross_origin()

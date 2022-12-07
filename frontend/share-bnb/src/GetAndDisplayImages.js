@@ -8,13 +8,13 @@ function GetAndDisplayImage() {
   const [pics, setPics] = useState([]);
   async function handleClick() {
     const resp = await axios({
-      url: `${BASE_URL}/pics`,
+      url: `${BASE_URL}/pics/1`,
       method: 'GET',
     });
 
     console.log("TEST>>>>> resp.data is", resp.data);
 
-    setPics(() => resp.data.contents);
+    setPics(() => [resp.data.content]);
   }
 
   return (
