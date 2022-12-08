@@ -22,7 +22,8 @@ from models import db, connect_db, User
 from middleware import test_decorator
 
 from s3_helpers import upload_file, show_image, show_one_image
-
+from middleware import ensure_logged_in
+import jwt
 
 app = Flask(__name__)
 
@@ -61,9 +62,14 @@ connect_db(app)
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
 
-    if CURR_USER_KEY in session:
-        g.user = User.query.get(session[CURR_USER_KEY])
-
+    if 'token' in request.headers:
+        token = request.headers['token']
+        payload = jwt.decode(
+            token,
+            app.config['SECRET_KEY'],
+            algorithms=['HS256'],
+            options={"verify_signature": True})
+        g.user = payload
     else:
         g.user = None
 
@@ -109,14 +115,14 @@ def signup():
         last_name = data["last_name"]
 
         try:
-            user = User.signup(username, email, password,
-                               first_name, last_name)
+            token = User.signup(username, email, password,
+                                first_name, last_name)
             db.session.commit()
 
         except IntegrityError:
             return jsonify(errors=IntegrityError)
 
-        return jsonify(user.to_dict())
+        return jsonify({"token": token})
         # TODO: NEED TO RETURN TOKEN
 
     else:
@@ -148,7 +154,6 @@ def handle_file_upload():
     return jsonify("success")
 
 
-
 @app.route("/pics/1", methods=['GET'])
 @cross_origin()
 def list_one_photo():
@@ -156,8 +161,10 @@ def list_one_photo():
     print("contents is>>>>>>>>>>>>>", type(content), content)
     return jsonify({'content': content})
 
+
 @app.route("/pics", methods=['GET'])
 @cross_origin()
+@ensure_logged_in
 def list():
     contents = show_image(BUCKET)
     print("contents is>>>>>>>>>>>>>", type(contents), contents)

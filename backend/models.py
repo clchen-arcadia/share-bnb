@@ -1,9 +1,11 @@
 """SQLAlchemy models for Share BnB."""
 
+from token_helpers import create_token
 from datetime import datetime
 
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
+
 
 bcrypt = Bcrypt()
 db = SQLAlchemy()
@@ -58,7 +60,7 @@ class User(db.Model):
 
         hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
 
-        user = User (
+        user = User(
             username=username,
             email=email,
             password=hashed_pwd,
@@ -67,7 +69,9 @@ class User(db.Model):
         )
 
         db.session.add(user)
-        return user
+        token = create_token(user)
+
+        return token
 
     @classmethod
     def authenticate(cls, username, password):
