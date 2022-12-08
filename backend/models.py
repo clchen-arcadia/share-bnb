@@ -96,6 +96,7 @@ class User(db.Model):
         return False
 
 
+
 class Listing(db.Model):
     """Listing."""
 

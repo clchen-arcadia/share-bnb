@@ -25,6 +25,7 @@ from middleware import (
     ensure_logged_in,
     ensure_admin,
     ensure_admin_or_correct_user,
+    ensure_admin_or_correct_host
 )
 import jwt
 
@@ -174,6 +175,18 @@ def get_user(username):
 
 ##############################################################################
 # Routes for Listings
+
+@app.route('/listings')
+def get_all_listing():
+    
+
+@app.route('/listings/<listing_id>', methods=['GET'])
+
+@app.route('/listings/<listing_id>', methods=['POST', 'PATCH', 'PUT', 'DELETE'])
+@ensure_admin_or_correct_host
+def update_or_delete_listing(listing_id):
+    return jsonify({'test': 'you got here'})
+
 
 ##############################################################################
 # Routes for Images for Listings

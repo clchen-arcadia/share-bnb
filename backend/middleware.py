@@ -5,6 +5,8 @@ import time
 import jwt
 import os
 
+from models import Listing
+
 my_secret_key = os.getenv('SECRET_KEY')
 
 
@@ -23,25 +25,25 @@ def test_decorator(f):  # f is equal to the joel function itself
 
 
 def ensure_logged_in(func):
-    def wrapped(*args, **kwargs):
+    def validate_login(*args, **kwargs):
         if g.user is not None:
             return func(*args, **kwargs)
         else:
             return jsonify({"error": "User must be logged in."}), 401
-    return wrapped
+    return validate_login
 
 def ensure_admin(func):
-    def wrapped2(*args, **kwargs):
+    def validate_admin(*args, **kwargs):
         if(g.user is None):
             return jsonify({"error": "User not authorized."}), 401
         if (g.user.get('is_admin') is True):
             return func(*args, **kwargs)
         else:
             return jsonify({"error": "User not authorized."}), 401
-    return wrapped2
+    return validate_admin
 
 def ensure_admin_or_correct_user(func):
-    def wrapped3(*args, **kwargs):
+    def validate_admin_user(*args, **kwargs):
         if(g.user is None):
             return jsonify({"error": "User not authorized."}), 401
         if (g.user.get('is_admin') is True
@@ -49,6 +51,16 @@ def ensure_admin_or_correct_user(func):
             return func(*args, **kwargs)
         else:
             return jsonify({"error": "User not authorized."}), 401
-    return wrapped3
+    return validate_admin_user
 
-def ensure_admin_or_correct_host(func)
+def ensure_admin_or_correct_host(func):
+    def validate_admin_host(*args, **kwargs):
+        if(g.user is None):
+            return jsonify({"error": "User not authorized."}), 401
+        listing = Listing.query.get_or_404(kwargs['listing_id'])
+        if (g.user.get('is_admin') is True
+                or g.user.get('username') == listing.host_username):
+            return func(*args, **kwargs)
+        else:
+            return jsonify({"error": "User not authorized."}), 401
+    return validate_admin_host
