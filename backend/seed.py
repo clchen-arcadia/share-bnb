@@ -82,10 +82,15 @@ m3 = Message(
     text="Is this available for this weekend?"
 )
 
+m4 = Message(
+    sender_username="u1",
+    receiver_username="u3",
+    text="Is this available for this weekend!?!??!?!?"
+)
 
 db.session.add_all([u1, u2, u3])
 db.session.commit()
 db.session.add_all([l1, l2, l3])
 db.session.commit()
-db.session.add_all([m1, m2, m3])
+db.session.add_all([m1, m2, m3, m4])
 db.session.commit()

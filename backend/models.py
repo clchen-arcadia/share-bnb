@@ -51,6 +51,14 @@ class User(db.Model):
     def __repr__(self):
         return f"""<User: {self.username}, {self.email}, {self.first_name} {self.last_name}>"""
 
+    def filter_messages_sent_to_username(self, username):
+        return Message.query.filter(Message.sender_username == self.username,
+                                    Message.receiver_username == username)
+
+    def filter_messages_from_username(self, username):
+        return Message.query.filter(Message.receiver_username == self.username,
+                                    Message.sender_username == username)
+
     @classmethod
     def signup(cls, username, email, password, first_name, last_name):
         """Sign up user.
@@ -94,7 +102,6 @@ class User(db.Model):
                 return create_token(user)
 
         return False
-
 
 
 class Listing(db.Model):
@@ -142,7 +149,7 @@ class Listing(db.Model):
         }
 
     @classmethod
-    def create_new_listing(host_username, title, address, description, price):
+    def create_new_listing(cls, host_username, title, address, description, price):
         listing = Listing(
             host_username=host_username,
             title=title,
@@ -152,8 +159,6 @@ class Listing(db.Model):
         )
 
         db.session.add(listing)
-
-
 
 
 class Photo(db.Model):
@@ -210,6 +215,23 @@ class Message(db.Model):
         Sender_username: {self.sender_username},
         Receiver_username: {self.receiver_username},
         Id: {self.id}>"""
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "sender_username": self.sender_username,
+            "receiver_username": self.receiver_username,
+            "text": self.text,
+            "timestamp": self.timestamp,
+        }
+
+    @classmethod
+    def create_new_message(cls, to_username, from_username, text):
+        new_message = Message(sender_username=from_username,
+                              receiver_username=to_username,
+                              text=text)
+        db.session.add(new_message)
+        return new_message
 
 
 def connect_db(app):

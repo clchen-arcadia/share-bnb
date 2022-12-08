@@ -50,3 +50,12 @@ class ListingForm(FlaskForm):
     address = StringField('Address', validators=[DataRequired()])
     description = StringField('Description', validators=[DataRequired()])
     price = DecimalField('Price', validators=[DataRequired()])
+
+
+#####################################################################
+
+class NewMessageForm(FlaskForm):
+    """New Message Form"""
+
+    to_username = StringField('To Username', validators=[DataRequired()])
+    text = StringField('Text', validators=[DataRequired()])
