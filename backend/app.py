@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 # from flask_debugtoolbar import DebugToolbarExtension
 
 from sqlalchemy.exc import (IntegrityError)
-from forms import (UserSignup)
+from forms import (UserSignup, LoginForm)
 from flask import (
     Flask,
     request,
@@ -64,12 +64,17 @@ def add_user_to_g():
 
     if 'token' in request.headers:
         token = request.headers['token']
-        payload = jwt.decode(
-            token,
-            app.config['SECRET_KEY'],
-            algorithms=['HS256'],
-            options={"verify_signature": True})
-        g.user = payload
+        try:
+            payload = jwt.decode(
+                token,
+                app.config['SECRET_KEY'],
+                algorithms=['HS256'],
+                options={"verify_signature": True})
+            g.user = payload
+        except jwt.exceptions.InvalidSignatureError as e:
+            print("INVALID SIG, ERR IS", e)
+            g.user = None
+
     else:
         g.user = None
 
@@ -90,7 +95,7 @@ def do_logout():
         del session[CURR_USER_KEY]
 
 ##############################################################################
-# Routes
+# Routes for authentication/authorization
 
 
 @app.route('/signup', methods=["POST"])
@@ -119,14 +124,38 @@ def signup():
                                 first_name, last_name)
             db.session.commit()
 
-        except IntegrityError:
-            return jsonify(errors=IntegrityError)
+        except IntegrityError as e:
+            print("ERR: ", e)
+            return jsonify({'error': "Username/email already exists."})
 
-        return jsonify({"token": token})
-        # TODO: NEED TO RETURN TOKEN
+        return jsonify({"token": token}), 201
 
     else:
         return jsonify(errors=form.errors)
+
+@app.route('/login', methods=["POST"])
+def login():
+    """Handle user login
+    Accepts username and password as JSON
+    Returns JSON of {token} or {error}
+    """
+
+    data = MultiDict(mapping=request.json)
+    form = LoginForm(data)
+
+    if form.validate():
+        username = data["username"]
+        password = data["password"]
+
+        token = User.authenticate(username, password)
+
+        if token:
+            return jsonify({'token': token})
+        elif not token:
+            return jsonify({'error': 'Invalid username/password'})
+
+
+
 
 
 # @app.route('/test', methods=["GET"])

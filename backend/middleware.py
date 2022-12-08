@@ -27,7 +27,7 @@ def ensure_logged_in(func):
         if g.user != None:
             return func(*args, **kwargs)
         else:
-            return jsonify({"error": "User must be logged in."})
+            return jsonify({"error": "User must be logged in."}), 401
     return wrapped
 
 # TODO: isAdmin check
