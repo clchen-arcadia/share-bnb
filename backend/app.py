@@ -316,7 +316,7 @@ def send_new_message(username):
 @cross_origin()
 def handle_file_upload():
     # TODO: validate this incoming data
-    breakpoint()
+    # breakpoint()
     # file = request.get['file']
     files = request.files.getlist("file")
     # print(request.files["file[]"])
@@ -328,8 +328,8 @@ def handle_file_upload():
     print("files ------------------------------------>", type(files))
     print("files ------------------------------------>", files)
 
-    for file in files:
-        print(file, "<<<<<file")
+    # for file in files:
+    #     print(file, "<<<<<file")
     # file.save(os.path.join(UPLOAD_FOLDER, secure_filename(file.filename)))
     # upload_file(f"uploads/{file.filename}", BUCKET)
 
