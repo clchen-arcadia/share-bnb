@@ -21,8 +21,8 @@ class User(db.Model):
     email = db.Column(db.Text, nullable=False, unique=True)
     first_name = db.Column(db.Text, nullable=False)
     last_name = db.Column(db.Text, nullable=False)
-    isAdmin = db.Column(db.Boolean, nullable=False, default=False)
-    isHost = db.Column(db.Boolean, nullable=False, default=False)
+    is_admin = db.Column(db.Boolean, nullable=False, default=False)
+    is_host = db.Column(db.Boolean, nullable=False, default=False)
 
     def to_dict(self):
         """Serialize user to a dict of user info."""
@@ -30,10 +30,10 @@ class User(db.Model):
         return {
             "username": self.username,
             "email": self.email,
-            "first_name": self.first_name,
-            "last_name": self.last_name,
-            "isAdmin": self.isAdmin,
-            "isHost": self.isHost
+            "firstName": self.first_name,
+            "lastName": self.last_name,
+            "isAdmin": self.is_admin,
+            "isHost": self.is_host
         }
 
     messages_from = db.relationship(

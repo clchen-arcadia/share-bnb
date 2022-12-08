@@ -7,15 +7,15 @@ my_secret_key = os.getenv('SECRET_KEY')
 
 def create_token(user):
     username = user.username
-    isAdmin = user.isAdmin
-    isHost = user.isHost
+    is_admin = user.is_admin
+    is_host = user.is_host
 
     try:
 
         payload = {
             'username': username,
-            'isAdmin': isAdmin,
-            'isHost': isHost
+            'is_admin': is_admin,
+            'is_host': is_host
         }
         token = jwt.encode(payload,
                            my_secret_key, algorithm='HS256')

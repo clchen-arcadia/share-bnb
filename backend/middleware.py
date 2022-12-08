@@ -24,12 +24,31 @@ def test_decorator(f):  # f is equal to the joel function itself
 
 def ensure_logged_in(func):
     def wrapped(*args, **kwargs):
-        if g.user != None:
+        if g.user is not None:
             return func(*args, **kwargs)
         else:
             return jsonify({"error": "User must be logged in."}), 401
     return wrapped
 
-# TODO: isAdmin check
-# TODO: is correct Host check
-# TODO: isAdmin or current user
+def ensure_admin(func):
+    def wrapped2(*args, **kwargs):
+        if(g.user is None):
+            return jsonify({"error": "User not authorized."}), 401
+        if (g.user.get('is_admin') is True):
+            return func(*args, **kwargs)
+        else:
+            return jsonify({"error": "User not authorized."}), 401
+    return wrapped2
+
+def ensure_admin_or_correct_user(func):
+    def wrapped3(*args, **kwargs):
+        if(g.user is None):
+            return jsonify({"error": "User not authorized."}), 401
+        if (g.user.get('is_admin') is True
+                or g.user.get('username') == kwargs['username']):
+            return func(*args, **kwargs)
+        else:
+            return jsonify({"error": "User not authorized."}), 401
+    return wrapped3
+
+def ensure_admin_or_correct_host(func)

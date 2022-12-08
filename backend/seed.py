@@ -26,6 +26,8 @@ u3 = User(
     email="u3@u3.com",
     first_name="f_name_3",
     last_name="l_name_3",
+    is_admin=True,
+    is_host=True,
 )
 
 l1 = Listing(

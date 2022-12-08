@@ -19,10 +19,13 @@ from flask_cors import CORS, cross_origin
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import MultiDict
 from models import db, connect_db, User
-from middleware import test_decorator
 
 from s3_helpers import upload_file, show_image, show_one_image
-from middleware import ensure_logged_in
+from middleware import (
+    ensure_logged_in,
+    ensure_admin,
+    ensure_admin_or_correct_user,
+)
 import jwt
 
 app = Flask(__name__)
@@ -153,8 +156,30 @@ def login():
             return jsonify({'token': token})
         elif not token:
             return jsonify({'error': 'Invalid username/password'})
+    return jsonify(errors=form.errors)
 
+##############################################################################
+# Routes for Users
 
+@app.route('/users/')
+@ensure_admin
+def get_all_users():
+    return
+
+@app.route('/users/<username>')
+@ensure_admin_or_correct_user
+def get_user(username):
+    print("TEST>>>>>> username=", username)
+    return jsonify({'test':'you got here'})
+
+##############################################################################
+# Routes for Listings
+
+##############################################################################
+# Routes for Images for Listings
+
+##############################################################################
+# Routes for Messages
 
 
 
@@ -194,7 +219,7 @@ def list_one_photo():
 @app.route("/pics", methods=['GET'])
 @cross_origin()
 @ensure_logged_in
-def list():
+def list_photos():
     contents = show_image(BUCKET)
     print("contents is>>>>>>>>>>>>>", type(contents), contents)
     return jsonify({'contents': contents})
