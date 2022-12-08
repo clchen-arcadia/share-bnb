@@ -5,6 +5,7 @@ import time
 import jwt
 import os
 
+
 from models import Listing
 
 my_secret_key = os.getenv('SECRET_KEY')
@@ -25,6 +26,7 @@ def test_decorator(f):  # f is equal to the joel function itself
 
 
 def ensure_logged_in(func):
+    @wraps(func)
     def validate_login(*args, **kwargs):
         if g.user is not None:
             return func(*args, **kwargs)
@@ -33,6 +35,7 @@ def ensure_logged_in(func):
     return validate_login
 
 def ensure_admin(func):
+    @wraps(func)
     def validate_admin(*args, **kwargs):
         if(g.user is None):
             return jsonify({"error": "User not authorized."}), 401
@@ -43,6 +46,7 @@ def ensure_admin(func):
     return validate_admin
 
 def ensure_admin_or_correct_user(func):
+    @wraps(func)
     def validate_admin_user(*args, **kwargs):
         if(g.user is None):
             return jsonify({"error": "User not authorized."}), 401
@@ -54,6 +58,7 @@ def ensure_admin_or_correct_user(func):
     return validate_admin_user
 
 def ensure_admin_or_correct_host(func):
+    @wraps(func)
     def validate_admin_host(*args, **kwargs):
         if(g.user is None):
             return jsonify({"error": "User not authorized."}), 401

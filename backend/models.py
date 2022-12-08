@@ -131,6 +131,30 @@ class Listing(db.Model):
         Address: {self.address},
         Price: {self.price}>"""
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "host_username": self.host_username,
+            "title": self.title,
+            "address": self.address,
+            "description": self.description,
+            "price": self.price,
+        }
+
+    @classmethod
+    def create_new_listing(host_username, title, address, description, price):
+        listing = Listing(
+            host_username=host_username,
+            title=title,
+            address=address,
+            description=description,
+            price=price,
+        )
+
+        db.session.add(listing)
+
+
+
 
 class Photo(db.Model):
     """Photo."""

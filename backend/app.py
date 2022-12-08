@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 # from flask_debugtoolbar import DebugToolbarExtension
 
 from sqlalchemy.exc import (IntegrityError)
-from forms import (UserSignup, LoginForm)
+from forms import (UserSignup, LoginForm, ListingForm)
 from flask import (
     Flask,
     request,
@@ -18,7 +18,7 @@ from flask_cors import CORS, cross_origin
 
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import MultiDict
-from models import db, connect_db, User
+from models import db, connect_db, User, Listing
 
 from s3_helpers import upload_file, show_image, show_one_image
 from middleware import (
@@ -178,18 +178,58 @@ def get_user(username):
 
 @app.route('/listings')
 def get_all_listing():
-    
+    print("LISTING>>>>>>", type(Listing.query.all()))
+    listings_output = []
+    for listing in Listing.query.all():
+        listings_output.append(listing.to_dict())
+    return jsonify({'listings': listings_output})
 
-@app.route('/listings/<listing_id>', methods=['GET'])
+@app.route('/listings/<int:listing_id>', methods=['GET'])
+def get_listing(listing_id):
+    return jsonify({'listing': Listing.query.get_or_404(listing_id).to_dict()})
 
-@app.route('/listings/<listing_id>', methods=['POST', 'PATCH', 'PUT', 'DELETE'])
-@ensure_admin_or_correct_host
-def update_or_delete_listing(listing_id):
+@app.route('/listings/', methods=['POST'])
+@ensure_logged_in
+def post_new_listing():
+    try:
+        Listing.create_new_listing()
+        db.session.commit()
+    except IntegrityError as e:
+        print("ERR: ", e)
+        return jsonify({'error': 'Problem creating listing'})
     return jsonify({'test': 'you got here'})
+
+@app.route('/listings/<listing_id>', methods=['DELETE'])
+@ensure_admin_or_correct_host
+def delete_listing(listing_id):
+    Listing.query.filter(Listing.id==listing_id).delete()
+    db.session.commit()
+    return jsonify({'Success': 'Listing deleted'})
+
+@app.route('/listings/<listing_id>', methods=['PUT'])
+@ensure_admin_or_correct_host
+def update_listing(listing_id):
+
+    listing = Listing.query.get_or_404(listing_id)
+    data = MultiDict(mapping=request.json)
+    form = ListingForm(data)
+
+    if form.validate():
+        listing.title = data['title']
+        listing.address = data['address']
+        listing.description = data['description']
+        listing.price = data['price']
+
+        db.session.commit()
+        return jsonify({'Success': 'Listing updated'})
+
+    return jsonify(errors=form.errors)
 
 
 ##############################################################################
 # Routes for Images for Listings
+
+
 
 ##############################################################################
 # Routes for Messages
