@@ -1,4 +1,6 @@
 
+
+// TODO: get bootstraps on the cards here
 function ListingCard() {
 
   return (

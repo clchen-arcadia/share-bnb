@@ -21,12 +21,12 @@ class UserSignup(FlaskForm):
         validators=[InputRequired()]
     )
 
-    first_name = StringField(
+    firstName = StringField(
         "First Name",
         validators=[InputRequired()]
     )
 
-    last_name = StringField(
+    lastName = StringField(
         "Last Name",
         validators=[InputRequired()]
     )

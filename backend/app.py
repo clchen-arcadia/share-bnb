@@ -91,8 +91,8 @@ def signup():
         username = data["username"]
         password = data["password"]
         email = data["email"]
-        first_name = data["first_name"]
-        last_name = data["last_name"]
+        first_name = data["firstName"]
+        last_name = data["lastName"]
 
         try:
             token = User.signup(username, email, password,
@@ -106,7 +106,11 @@ def signup():
         return jsonify({"token": token}), 201
 
     else:
-        return jsonify(errors=form.errors)
+        messages = []
+        for err in form.errors:
+            joined_messages = " ".join(form.errors[err])
+            messages.append(f"{err}: {joined_messages}")
+        return jsonify({'errors': messages}), 400
 
 
 @app.route('/login', methods=["POST"])

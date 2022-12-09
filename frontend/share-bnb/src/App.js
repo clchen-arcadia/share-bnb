@@ -1,4 +1,3 @@
-
 import './App.css';
 import { useState, useEffect } from 'react';
 import useLocalStorage from "./useLocalStorage";
@@ -9,17 +8,10 @@ import Navigation from "./Navigation.js";
 import ShareBnbApi from './Api.js';
 import decode from "jwt-decode";
 
-// localStorage.setItem("token", token);
-
-// localStorage.removeItem("token");
-
-// static token = localStorage.getItem("token");
-
 
 export const TOKEN_STORAGE_ID = "sharebnb-token";
 
 function App() {
-
 
   const [currentUser, setCurrentUser] = useState({
     data: null,
@@ -50,7 +42,6 @@ function App() {
             // put the token on the Api class so it can use it to call the API.
             ShareBnbApi.token = token;
             let currentUser = await ShareBnbApi.getCurrentUser(username);
-            console.log(currentUser, "<-----------------currentUser");
             setCurrentUser({
               infoLoaded: true,
               data: currentUser
@@ -103,7 +94,6 @@ function App() {
    */
 
   function handleLogout() {
-    localStorage.removeItem("token");
     setToken(() => null);
   }
 

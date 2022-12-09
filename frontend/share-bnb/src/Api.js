@@ -26,8 +26,12 @@ class ShareBnbApi {
     try {
       return (await axios({ url, method, data, params, headers })).data;
     } catch (err) {
+      console.log("API ERROR TEST:", err);
       console.error("API Error:", err.response);
-      let message = err.response.data.error;
+      let message = err.response.data?.error;
+      if(!message){
+        message = err.response.data?.errors;
+      }
       throw Array.isArray(message) ? message : [message];
     }
   }
@@ -37,8 +41,8 @@ class ShareBnbApi {
   /** Get details on a specific listing */
 
   static async getListing(handle) {
-    let res = await this.request(`companies/${handle}`);
-    return res.company;
+    let res = await this.request(`/listings`);
+    return res.listings;
   }
 
   /**Get a list of all listings */

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Alert from './Alert';
 
 const initialState = {
-  username: "testuser_1",
+  username: "u1",
   password: "password",
 };
 

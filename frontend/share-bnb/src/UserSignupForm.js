@@ -1,5 +1,16 @@
+import { useState } from 'react';
+import { useNavigate } from "react-router-dom";
+import Alert from './Alert';
 
-function UserSignupForm() {
+const initialState = {
+  username: "",
+  password: "",
+  firstName: "",
+  lastName: "",
+  email: "",
+};
+
+function UserSignupForm({onSubmit}) {
 
   const [errors, setErrors] = useState([]);
   const [formData, setFormData] = useState(initialState);
@@ -18,7 +29,7 @@ function UserSignupForm() {
   async function handleSubmit(evt) {
     evt.preventDefault();
     try {
-      await signUp(formData);
+      await onSubmit(formData);
       navigate("/");
     } catch (err) {
       setErrors(err);
