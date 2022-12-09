@@ -14,8 +14,8 @@ import userContext from "./userContext";
  */
 
 function Navigation({ handleLogout }) {
-    const { username } = useContext(userContext);
-    const isLoggedIn = username !== undefined;
+    const { data } = useContext(userContext);
+    const isLoggedIn = data?.username !== undefined;
     // const isLoggedIn = true;
 
     return (
@@ -29,14 +29,14 @@ function Navigation({ handleLogout }) {
                     <div className="Navigation-data-links">
                         <NavLink to="/listings">Listings</NavLink>
                         <NavLink to="/profile">Profile</NavLink>
-                        <NavLink to={`/messages/${username}`}>Messages</NavLink>
-                        <NavLink to={`/listings/${username}`}>My Listings</NavLink>
+                        <NavLink to={`/messages/${data?.username}`}>Messages</NavLink>
+                        <NavLink to={`/listings/${data?.username}`}>My Listings</NavLink>
                         <NavLink
                             to="/logout"
                             onClick={handleLogout}
                             className="Navigation-data-links-logout"
                         >
-                            Logout {username}
+                            Logout {data?.username}
                         </NavLink>
                     </div>
                     :

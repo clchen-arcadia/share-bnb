@@ -128,7 +128,7 @@ def login():
         if token:
             return jsonify({'token': token})
         elif not token:
-            return jsonify({'error': 'Invalid username/password'})
+            return jsonify({'error': 'Invalid username/password'}), 400
     return jsonify(errors=form.errors)
 
 ##############################################################################

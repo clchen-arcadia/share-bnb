@@ -10,7 +10,7 @@
 function Alert({ err }) {
   console.log(err, "err in alert");
   return (
-    <div class="alert alert-danger mt-3" role="alert">
+    <div className="alert alert-danger mt-3" role="alert">
       {`${err}`.replace('instance.', '')}
     </div>
   );

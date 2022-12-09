@@ -27,7 +27,7 @@ class ShareBnbApi {
       return (await axios({ url, method, data, params, headers })).data;
     } catch (err) {
       console.error("API Error:", err.response);
-      let message = err.response.data.error.message;
+      let message = err.response.data.error;
       throw Array.isArray(message) ? message : [message];
     }
   }
@@ -61,6 +61,7 @@ class ShareBnbApi {
 
   static async login(data) {
     let res = await this.request(`/login`, data, "post");
+    console.log("res ------->", res);
     return res.token;
   }
 

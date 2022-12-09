@@ -1,7 +1,7 @@
 
 import './App.css';
 import { useState, useEffect } from 'react';
-import useLocalStorage from "./hooks/useLocalStorage";
+import useLocalStorage from "./useLocalStorage";
 import userContext from "./userContext.js";
 import RoutesList from './RoutesList';
 import { BrowserRouter } from 'react-router-dom';
@@ -50,7 +50,7 @@ function App() {
             // put the token on the Api class so it can use it to call the API.
             ShareBnbApi.token = token;
             let currentUser = await ShareBnbApi.getCurrentUser(username);
-
+            console.log(currentUser, "<-----------------currentUser");
             setCurrentUser({
               infoLoaded: true,
               data: currentUser

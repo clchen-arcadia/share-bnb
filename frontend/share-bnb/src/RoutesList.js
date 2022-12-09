@@ -23,8 +23,8 @@ import SignupForm from './UserSignupForm';
  */
 
 function RoutesList({ handleLogin, handleSignup, handleProfileEdit }) {
-    const { username } = useContext(userContext);
-    const isLoggedIn = username !== undefined;
+    const { data } = useContext(userContext);
+    const isLoggedIn = data?.username !== undefined;
     // const isLoggedIn = true;
 
     return (
