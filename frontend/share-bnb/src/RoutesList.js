@@ -1,11 +1,5 @@
 import { Route, Routes, Navigate } from "react-router-dom";
-import CompanyDetail from "./CompanyDetail.js";
-import CompaniesList from "./CompaniesList.js";
-import JobsList from "./JobsList.js";
 import Homepage from "./Homepage.js";
-import ProfileForm from "./ProfileForm.js";
-import LoginForm from "./LoginForm.js";
-import SignupForm from "./SignupForm.js";
 import userContext from "./userContext.js";
 import { useContext } from "react";
 /**
@@ -31,16 +25,21 @@ function RoutesList({ handleLogin, handleSignup, handleProfileEdit }) {
             {isLoggedIn
                 ?
                 <Routes>
-                    <Route path="/companies/:handle" element={<CompanyDetail />} />
-                    <Route path="/companies" element={<CompaniesList />} />
-                    <Route path="/jobs" element={<JobsList />} />
+                    <Route path="/messages/:curr_user/:to_user" element={<MessageChatRoom />} />
+
                     <Route path="/profile" element={<ProfileForm onSubmit={handleProfileEdit} />} />
+
+                    <Route path="/listings" element={<ListingsPage />} />
+                    <Route path="/listings/new" element={<ListingNewForm />} />
+                    <Route path="/listings/:id/edit" element={<ListingEditForm />} />
+
                     <Route path="/" element={<Homepage />} />
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
 
                 :
                 <Routes>
+                    <Route path="/listings" element={<ListingsPage />} />
                     <Route path="/login" element={<LoginForm onSubmit={handleLogin} />} />
                     <Route path="/signup" element={<SignupForm onSubmit={handleSignup} />} />
                     <Route path="/" element={<Homepage />} />

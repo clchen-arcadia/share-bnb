@@ -25,7 +25,7 @@ function App() {
 
 
   const [userInfo, setUserInfo] = useState({});
-  const [token, setToken] = useState(localStorage.getItem("token"))
+  const [token, setToken] = useState(localStorage.getItem("token"));
 
   console.log("userInfo>>>>>>>>>>>", userInfo);
   console.log("token>>>>>>>>>", token);
@@ -107,17 +107,19 @@ function App() {
 
   function handleLogout() {
     localStorage.removeItem("token");
+    setToken(() => null)
   }
 
   if (userInfo.username === undefined && token !== null) {
-    return <h1>Loading!</h1>
+    return <h1>Loading!</h1>;
   }
 
 
 
   return (
-    <div className="App">
-      <BrowserRouter>
+    <userContext.Provider value={userInfo}>
+      <div className="App">
+        <BrowserRouter>
           <Navigation
             handleLogout={handleLogout}
           />
@@ -127,8 +129,9 @@ function App() {
             handleSignup={handleSignup}
             handleProfileEdit={handleProfileEdit}
           />
-      </BrowserRouter>
-    </div>
+        </BrowserRouter>
+      </div>
+    </userContext.Provider>
   );
 }
 
