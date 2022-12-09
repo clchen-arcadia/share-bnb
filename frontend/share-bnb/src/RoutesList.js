@@ -9,6 +9,8 @@ import ListingNewForm from "./ListingNewForm.js";
 import ListingEditForm from "./ListingEditForm";
 import LoginForm from './UserLoginForm';
 import SignupForm from './UserSignupForm';
+import ListingDetailsPage from './ListingDetailsPage.js';
+
 /**
  * Renders a RoutesList component.
  *
@@ -38,6 +40,7 @@ function RoutesList({ handleLogin, handleSignup, handleProfileEdit }) {
 
                     <Route path="/listings" element={<ListingsPage />} />
                     <Route path="/listings/new" element={<ListingNewForm />} />
+                    <Route path="/listings/:id" element={<ListingDetailsPage />} />
                     <Route path="/listings/:id/edit" element={<ListingEditForm />} />
 
                     <Route path="/" element={<Homepage />} />

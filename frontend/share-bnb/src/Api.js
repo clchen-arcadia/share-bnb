@@ -40,16 +40,21 @@ class ShareBnbApi {
   // TODO: START HERE
   /** Get details on a specific listing */
 
-  static async getListing(handle) {
-    let res = await this.request(`/listings`);
-    return res.listings;
+  static async getListing(listingId) {
+    let res = await this.request(`listings/${listingId}`);
+    return res.listing;
+  }
+
+  static async getListingPhotos(listingId) {
+    let res = await this.request(`listings/${listingId}/photos`);
+    return res.photos;
   }
 
   /**Get a list of all listings */
   static async getListings() {
     //console.log(this.token);
-    let res = await this.request(`companies`);
-    return res.companies;
+    let res = await this.request(`listings`);
+    return res.listings;
   }
 
   //  * Register
@@ -57,14 +62,14 @@ class ShareBnbApi {
   //  *
   //  * Returns JWT token which can be used to authenticate further requests.
   static async registerNewUser(newUserData) {
-    let res = await this.request('/signup', newUserData, 'POST');
+    let res = await this.request('signup', newUserData, 'POST');
     return res.token;
   }
 
   /** Get token for login from username, password. */
 
   static async login(data) {
-    let res = await this.request(`/login`, data, "post");
+    let res = await this.request(`login`, data, "post");
     console.log("res ------->", res);
     return res.token;
   }
