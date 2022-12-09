@@ -132,6 +132,8 @@ class Listing(db.Model):
         nullable=False
     )
 
+    photos = db.relationship('Photo', backref="listing")
+
     def __repr__(self):
         return f"""<Listing
         Host_username: {self.host_username},
@@ -159,6 +161,7 @@ class Listing(db.Model):
         )
 
         db.session.add(listing)
+        return listing
 
 
 class Photo(db.Model):
@@ -182,6 +185,17 @@ class Photo(db.Model):
         id: {self.id},
         listing_id: {self.listing_id},
         filepath: {self.filepath}"""
+
+    @classmethod
+    def create_new_photo(cls, listing_id, filepath):
+        photo = Photo(
+            listing_id=listing_id,
+            filepath=filepath,
+        )
+
+        db.session.add(photo)
+        return photo
+
 
 
 class Message(db.Model):

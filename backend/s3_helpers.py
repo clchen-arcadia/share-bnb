@@ -46,7 +46,7 @@ def show_image(bucket):
             presigned_url = s3_client.generate_presigned_url(
                 'get_object',
                 Params={'Bucket': bucket, 'Key': item['Key']},
-                ExpiresIn=100
+                ExpiresIn=EXPIRE_TIME
             )
             public_urls.append(presigned_url)
     except Exception as e:
@@ -55,7 +55,7 @@ def show_image(bucket):
     print("[INFO] : The contents inside show_image = ", public_urls)
     return public_urls
 
-def show_one_image(bucket, key):
+def get_image_url(bucket, key):
 
     s3_client = boto3.client(
         's3',
@@ -68,7 +68,7 @@ def show_one_image(bucket, key):
         presigned_url = s3_client.generate_presigned_url(
                 'get_object',
                 Params={'Bucket': bucket, 'Key': key},
-                ExpiresIn=100
+                ExpiresIn=EXPIRE_TIME
             )
     except Exception as e:
         print("ERROR: ", e)

@@ -18,7 +18,7 @@ from flask_cors import CORS, cross_origin
 
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import MultiDict
-from models import db, connect_db, User, Listing, Message
+from models import db, connect_db, User, Listing, Message, Photo
 
 from s3_helpers import upload_file, show_image, show_one_image
 from middleware import (
@@ -197,32 +197,79 @@ def get_listing(listing_id):
 
 @app.route('/<username>/listings', methods=['POST'])
 @ensure_logged_in
+@ensure_correct_user
 def post_new_listing(username):
-    """Add a new listing"""
+    """Add a new listing, consumes request.files for photos
+    and consumes request.form for the rest of the form
+    """
 
-    data = MultiDict(mapping=request.json)
-    form = ListingForm(data)
+
+    files = request.files.getlist("file")
+
+    form_data = MultiDict(mapping=request.form)
+    form = ListingForm(form_data)
+
+    # data = MultiDict(mapping=request.json)
+    # form = ListingForm(data)
 
     if form.validate():
-        title = data['title']
-        address = data['address']
-        description = data['description']
-        price = data['price']
+        title = form_data['title']
+        address = form_data['address']
+        description = form_data['description']
+        price = form_data['price']
 
+        new_listing = None
+        # Create new Listing
         try:
-            Listing.create_new_listing(
+            new_listing = Listing.create_new_listing(
                 host_username=username,
                 title=title,
                 address=address,
                 description=description,
                 price=price
             )
+            print('NEW LISTING TEST BEFORE >>>>', new_listing.id, new_listing.to_dict())
+
             db.session.commit()
+
+            print('NEW LISTING TEST AFTER >>>>', new_listing.id, new_listing.to_dict())
+
+
 
         except IntegrityError as e:
             print("ERR: ", e)
             return jsonify({'error': 'Problem creating listing'})
-    return jsonify({'test': 'you got here'})
+
+        # Upload all photos to AWS and submit Photo instance to database
+        try:
+            for idx, file in enumerate(files):
+                # print(file, "<<<<<file")
+                file.save(os.path.join(UPLOAD_FOLDER, secure_filename(file.filename)))
+                # NOTE: stretch goal to set filenames ourselves like f"username_listingId_photo_#"
+                # new_filename = f"{new_listing.host_username}_{new_listing.id}_photo_{idx}"
+                # os.rename(f"{UPLOAD_FOLDER}/{file.filename}", new_filename)
+                upload_file(f"uploads/{file.filename}", BUCKET)
+                try:
+                    Photo.create_new_photo(
+                        listing_id=new_listing.id,
+                        filepath=f"uploads/{file.filename}"
+                    )
+                except IntegrityError as e:
+                    return jsonify({
+                        'error': 'Problem entering photo to database',
+                        'message': e.__repr__()
+                    })
+        except Exception as e:
+            return jsonify({
+                'error': 'Problem uploading images to AWS',
+                'message': e.__repr__()
+            })
+
+        # Finally commit changes to database
+        db.session.commit()
+        return jsonify({'success': 'created new listing'}), 201
+
+    return jsonify(errors=form.errors)
 
 
 @app.route('/listings/<listing_id>', methods=['DELETE'])
@@ -256,6 +303,14 @@ def update_listing(listing_id):
 ##############################################################################
 # Routes for Images
 
+@app.route('/listings/<listing_id>/photos', methods=['GET'])
+def get_photos_for_listing(listing_id):
+    listing = Listing.query.get_or_404(listing_id)
+    photo_urls = []
+    for photo in listing.photos:
+        photo_urls.append(get_image_url(BUCKET, photo.filepath))
+
+    return jsonify({'photos': photo_urls})
 
 ##############################################################################
 # Routes for Messages
@@ -312,28 +367,22 @@ def send_new_message(username):
         # joel = test_decorator(joel)
 
 
-@app.route('/upload', methods=['POST'])
-@cross_origin()
-def handle_file_upload():
-    # TODO: validate this incoming data
-    # breakpoint()
-    # file = request.get['file']
-    files = request.files.getlist("file")
-    # print(request.files["file[]"])
-    # name = request.form.get('name')
+# @app.route('/upload', methods=['POST'])
+# @cross_origin()
+# def handle_file_upload():
 
-    for x in files:
-        print(x, "<------- x")
+#     files = request.files.getlist("file")
+#     form_data = request.form
+#     form = ListingForm(form_data)
 
-    print("files ------------------------------------>", type(files))
-    print("files ------------------------------------>", files)
 
-    # for file in files:
-    #     print(file, "<<<<<file")
-    # file.save(os.path.join(UPLOAD_FOLDER, secure_filename(file.filename)))
-    # upload_file(f"uploads/{file.filename}", BUCKET)
 
-    return jsonify("success")
+#     # for file in files:
+#     #     print(file, "<<<<<file")
+#     # file.save(os.path.join(UPLOAD_FOLDER, secure_filename(file.filename)))
+#     # upload_file(f"uploads/{file.filename}", BUCKET)
+
+#     return jsonify("success")
 
 
 @app.route("/pics/1", methods=['GET'])
