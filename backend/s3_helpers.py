@@ -22,7 +22,7 @@ def upload_file(file_name, bucket):
     return response
 
 
-def show_image(bucket):
+def get_all_urls_from_s3(bucket):
     s3_client = boto3.client(
         's3',
         region_name=my_region,
@@ -74,10 +74,3 @@ def get_image_url(bucket, key):
         print("ERROR: ", e)
         pass
     return presigned_url
-
-
-#         file_download = s3_client.download_file(
-#             Bucket=bucket,
-#             Key=key,
-#             Filename=filename
-#         )

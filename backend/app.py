@@ -1,11 +1,5 @@
 import os
-
 from dotenv import load_dotenv
-
-# from flask_debugtoolbar import DebugToolbarExtension
-
-from sqlalchemy.exc import (IntegrityError)
-from forms import (UserSignup, LoginForm, ListingForm, NewMessageForm)
 from flask import (
     Flask,
     request,
@@ -13,14 +7,15 @@ from flask import (
     g,
     jsonify
 )
-
 from flask_cors import CORS, cross_origin
-
+from sqlalchemy.exc import (IntegrityError)
+from forms import (UserSignup, LoginForm, ListingForm, NewMessageForm)
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import MultiDict
-from models import db, connect_db, User, Listing, Message, Photo
+import jwt
 
-from s3_helpers import upload_file, show_image, show_one_image
+from models import db, connect_db, User, Listing, Message, Photo
+from s3_helpers import upload_file, get_image_url
 from middleware import (
     ensure_logged_in,
     ensure_admin,
@@ -28,20 +23,17 @@ from middleware import (
     ensure_admin_or_correct_host,
     ensure_correct_user
 )
-import jwt
 
 app = Flask(__name__)
 
 UPLOAD_FOLDER = "uploads"
 BUCKET = "rithm-share-bnb"
+CURR_USER_KEY = "curr_user"
 
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-
 load_dotenv()
-
-CURR_USER_KEY = "curr_user"
 
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
@@ -49,12 +41,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = (
     os.environ['DATABASE_URL'].replace("postgres://", "postgresql://"))
 app.config['SQLALCHEMY_ECHO'] = False
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
-
-
-# toolbar = DebugToolbarExtension(app)
-
 app.config['WTF_CSRF_ENABLED'] = False
 
 connect_db(app)
@@ -82,22 +69,6 @@ def add_user_to_g():
 
     else:
         g.user = None
-
-##############################################################################
-# Helper functions
-
-
-def do_login(user):
-    """Log in user."""
-
-    session[CURR_USER_KEY] = user.id
-
-
-def do_logout():
-    """Log out user."""
-
-    if CURR_USER_KEY in session:
-        del session[CURR_USER_KEY]
 
 ##############################################################################
 # Routes for authentication/authorization
@@ -138,7 +109,6 @@ def signup():
     else:
         return jsonify(errors=form.errors)
 
-
 @app.route('/login', methods=["POST"])
 def login():
     """Handle user login
@@ -165,11 +135,11 @@ def login():
 # Routes for Users
 
 
+# TODO: write this
 @app.route('/users/')
 @ensure_admin
 def get_all_users():
     return
-
 
 @app.route('/users/<username>')
 @ensure_admin_or_correct_user
@@ -188,12 +158,10 @@ def get_all_listing():
         listings_output.append(listing.to_dict())
     return jsonify({'listings': listings_output})
 
-
 @app.route('/listings/<int:listing_id>', methods=['GET'])
 def get_listing(listing_id):
     """Get one listing"""
     return jsonify({'listing': Listing.query.get_or_404(listing_id).to_dict()})
-
 
 @app.route('/<username>/listings', methods=['POST'])
 @ensure_logged_in
@@ -202,7 +170,6 @@ def post_new_listing(username):
     """Add a new listing, consumes request.files for photos
     and consumes request.form for the rest of the form
     """
-
 
     files = request.files.getlist("file")
 
@@ -218,8 +185,9 @@ def post_new_listing(username):
         description = form_data['description']
         price = form_data['price']
 
-        new_listing = None
+
         # Create new Listing
+        new_listing = None
         try:
             new_listing = Listing.create_new_listing(
                 host_username=username,
@@ -228,27 +196,25 @@ def post_new_listing(username):
                 description=description,
                 price=price
             )
-            print('NEW LISTING TEST BEFORE >>>>', new_listing.id, new_listing.to_dict())
 
             db.session.commit()
-
-            print('NEW LISTING TEST AFTER >>>>', new_listing.id, new_listing.to_dict())
-
-
 
         except IntegrityError as e:
             print("ERR: ", e)
             return jsonify({'error': 'Problem creating listing'})
 
+
         # Upload all photos to AWS and submit Photo instance to database
         try:
             for idx, file in enumerate(files):
-                # print(file, "<<<<<file")
                 file.save(os.path.join(UPLOAD_FOLDER, secure_filename(file.filename)))
+
                 # NOTE: stretch goal to set filenames ourselves like f"username_listingId_photo_#"
                 # new_filename = f"{new_listing.host_username}_{new_listing.id}_photo_{idx}"
                 # os.rename(f"{UPLOAD_FOLDER}/{file.filename}", new_filename)
+
                 upload_file(f"uploads/{file.filename}", BUCKET)
+
                 try:
                     Photo.create_new_photo(
                         listing_id=new_listing.id,
@@ -259,13 +225,13 @@ def post_new_listing(username):
                         'error': 'Problem entering photo to database',
                         'message': e.__repr__()
                     })
+
         except Exception as e:
             return jsonify({
                 'error': 'Problem uploading images to AWS',
                 'message': e.__repr__()
             })
 
-        # Finally commit changes to database
         db.session.commit()
         return jsonify({'success': 'created new listing'}), 201
 
@@ -303,6 +269,7 @@ def update_listing(listing_id):
 ##############################################################################
 # Routes for Images
 
+
 @app.route('/listings/<listing_id>/photos', methods=['GET'])
 def get_photos_for_listing(listing_id):
     listing = Listing.query.get_or_404(listing_id)
@@ -314,6 +281,8 @@ def get_photos_for_listing(listing_id):
 
 ##############################################################################
 # Routes for Messages
+
+
 @app.route('/<username>/messages/<other_username>', methods=["GET"])
 @ensure_admin_or_correct_user
 def get_all_messages(username, other_username):
@@ -357,46 +326,3 @@ def send_new_message(username):
         return jsonify(errors=form.errors)
 
 ##############################################################################
-        # @app.route('/test', methods=["GET"])
-        # @test_decorator
-        # def hello():
-        #     return jsonify("hello")
-        # @test_decorator  # going to call test_decorator and pass the joel fxn
-        # def joel(a, b):
-        #     return a + b
-        # joel = test_decorator(joel)
-
-
-# @app.route('/upload', methods=['POST'])
-# @cross_origin()
-# def handle_file_upload():
-
-#     files = request.files.getlist("file")
-#     form_data = request.form
-#     form = ListingForm(form_data)
-
-
-
-#     # for file in files:
-#     #     print(file, "<<<<<file")
-#     # file.save(os.path.join(UPLOAD_FOLDER, secure_filename(file.filename)))
-#     # upload_file(f"uploads/{file.filename}", BUCKET)
-
-#     return jsonify("success")
-
-
-@app.route("/pics/1", methods=['GET'])
-@cross_origin()
-def list_one_photo():
-    content = show_one_image(BUCKET, 'uploads/cute-dog-headshot.jpeg')
-    print("contents is>>>>>>>>>>>>>", type(content), content)
-    return jsonify({'content': content})
-
-
-@app.route("/pics", methods=['GET'])
-@cross_origin()
-@ensure_logged_in
-def list_photos():
-    contents = show_image(BUCKET)
-    print("contents is>>>>>>>>>>>>>", type(contents), contents)
-    return jsonify({'contents': contents})
