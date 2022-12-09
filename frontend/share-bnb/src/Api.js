@@ -34,46 +34,18 @@ class ShareBnbApi {
 
   // Individual API routes
   // TODO: START HERE
-  /** Get details on a company by handle. */
+  /** Get details on a specific listing */
 
-  static async getCompany(handle) {
+  static async getListing(handle) {
     let res = await this.request(`companies/${handle}`);
     return res.company;
   }
 
-  /**Get a list of all companies */
-  static async getCompanies() {
+  /**Get a list of all listings */
+  static async getListings() {
     //console.log(this.token);
     let res = await this.request(`companies`);
     return res.companies;
-  }
-
-  // * Can filter on provided search filters API:
-  // * - minEmployees
-  // * - maxEmployees
-  // * - nameLike (will find case-insensitive, partial matches)
-  // *
-  /**Filter a list of all companies......... */
-  static async getFilteredCompanies(nameLike) {
-    let res = await this.request('companies', { nameLike })
-    console.log("filtered response = ", res);
-    return res.companies;
-  }
-
-  /**Get a list of all jobs */
-  static async getJobs() {
-    let res = await this.request(`jobs`);
-    return res.jobs;
-  }
-
-  // * Can provide search filter in query to API:
-  // * - minSalary
-  // * - hasEquity (true returns only jobs with equity > 0, other values ignored)
-  // * - title (will find case-insensitive, partial matches)
-  /**Filter a list of all jobs.............. */
-  static async getFilteredJobs(title) {
-    let res = await this.request('jobs', { title });
-    return res.jobs
   }
 
   //  * Register
@@ -81,24 +53,24 @@ class ShareBnbApi {
   //  *
   //  * Returns JWT token which can be used to authenticate further requests.
   static async registerNewUser(newUserData) {
-    let res = await this.request('auth/register', newUserData, 'POST');
-    return res;
+    let res = await this.request('/signup', newUserData, 'POST');
+    return res.token;
   }
 
-  //  * Login  { username, password } => { token }
-  //  *
-  //  * Returns JWT token which can be used to authenticate further requests.
-  static async loginUser(loginData) {
-    let res = await this.request('auth/token', loginData, 'POST');
-    return res;
+  /** Get token for login from username, password. */
+
+  static async login(data) {
+    let res = await this.request(`/login`, data, "post");
+    return res.token;
   }
 
-  //API call to get users information
-  static async getUserInfo(username) {
+  /** Get the current user. */
+  static async getCurrentUser(username) {
     let res = await this.request(`users/${username}`);
-    return res;
+    return res.user;
   }
 
+  //TODO:
   //API call to update a users information
   static async updateUserInfo(username, formData) {
     let res = await this.request(`users/${username}`, formData, 'PATCH');

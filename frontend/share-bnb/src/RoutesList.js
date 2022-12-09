@@ -2,6 +2,13 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import Homepage from "./Homepage.js";
 import userContext from "./userContext.js";
 import { useContext } from "react";
+import MessageChatRoom from './MessageChatRoom';
+import ProfileForm from './UserEditForm';
+import ListingsPage from './ListingsPage';
+import ListingNewForm from "./ListingNewForm.js";
+import ListingEditForm from "./ListingEditForm";
+import LoginForm from './UserLoginForm';
+import SignupForm from './UserSignupForm';
 /**
  * Renders a RoutesList component.
  *
@@ -17,8 +24,8 @@ import { useContext } from "react";
 
 function RoutesList({ handleLogin, handleSignup, handleProfileEdit }) {
     const { username } = useContext(userContext);
-    // const isLoggedIn = username !== undefined;
-    const isLoggedIn = true;
+    const isLoggedIn = username !== undefined;
+    // const isLoggedIn = true;
 
     return (
         <div className="RoutesList">
@@ -47,7 +54,7 @@ function RoutesList({ handleLogin, handleSignup, handleProfileEdit }) {
                 </Routes>
             }
         </div>
-    )
+    );
 }
 
 export default RoutesList;

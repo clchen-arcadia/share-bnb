@@ -1,16 +1,13 @@
-import logo from './logo.svg';
-import './App.css';
-import FormFileTest from './FormFileTest';
-import GetAndDisplayImage from './GetAndDisplayImages';
 
-import { useState, useEffect } from 'react';
-import userContext from "./userContext.js";
 import './App.css';
+import { useState, useEffect } from 'react';
+import useLocalStorage from "./hooks/useLocalStorage";
+import userContext from "./userContext.js";
 import RoutesList from './RoutesList';
 import { BrowserRouter } from 'react-router-dom';
 import Navigation from "./Navigation.js";
 import ShareBnbApi from './Api.js';
-import jwt_decode from "jwt-decode";
+import decode from "jwt-decode";
 
 // localStorage.setItem("token", token);
 
@@ -19,63 +16,74 @@ import jwt_decode from "jwt-decode";
 // static token = localStorage.getItem("token");
 
 
-
+export const TOKEN_STORAGE_ID = "sharebnb-token";
 
 function App() {
 
 
-  const [userInfo, setUserInfo] = useState({});
-  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [currentUser, setCurrentUser] = useState({
+    data: null,
+    infoLoaded: false
+  });
+  const [token, setToken] = useLocalStorage(TOKEN_STORAGE_ID);
 
-  console.log("userInfo>>>>>>>>>>>", userInfo);
-  console.log("token>>>>>>>>>", token);
-  /**
-   * Every time the token state changes, function runs.
-   * If token is not null, an API call will be made and userInfo
-   * will be updated.
-   * If the token is null, userInfo will be set to empty object.
-   */
-  useEffect(function handleChangeOfUser() {
-    async function fetchUserInfo() {
-      //console.log("useEffect invoked, token is", token);
-      ShareBnbApi.token = token;
-      if (token !== null) {
-        localStorage.setItem("token", token);
-        //console.log("there is a token, we got here");
-        const tokenDecoded = jwt_decode(token);
-        //console.log("TEST decoded token is>>>>", tokenDecoded);
-        const { username } = tokenDecoded;
+  console.debug(
+    "App",
+    "currentUser=",
+    currentUser,
+    "token=",
+    token
+  );
 
-        try {
-          const res = await ShareBnbApi.getUserInfo(username);
-          setUserInfo(() => res.user);
-        } catch (err) {
-          handleLogout();
-          //This happens only in odd circumstances where the server drops
-          //in the moment after a successful login request
-          window.alert("Login failed, please try again");
+  // Load user info from API. Until a user is logged in and they have a token,
+  // this should not run. It only needs to re-run when a user logs out, so
+  // the value of the token is a dependency for this effect.
+
+  useEffect(
+    function loadUserInfo() {
+      console.debug("App useEffect loadUserInfo", "token=", token);
+
+      async function getCurrentUser() {
+        if (token) {
+          try {
+            let { username } = decode(token);
+            // put the token on the Api class so it can use it to call the API.
+            ShareBnbApi.token = token;
+            let currentUser = await ShareBnbApi.getCurrentUser(username);
+
+            setCurrentUser({
+              infoLoaded: true,
+              data: currentUser
+            });
+          } catch (err) {
+            console.error("App loadUserInfo: problem loading", err);
+            setCurrentUser({
+              infoLoaded: true,
+              data: null
+            });
+          }
+        } else {
+          setCurrentUser({
+            infoLoaded: true,
+            data: null
+          });
         }
-      } else if (token === null) {
-        localStorage.removeItem("token");
-        setUserInfo({});
       }
-
-      console.log("hallelujah, useEffect has been invoked");
-    }
-
-    fetchUserInfo();
-  }, [token]);
+      getCurrentUser();
+    },
+    [token]
+  );
 
 
-  /**
-   *  Function called when login form submitted.
-   *  Call static methods on JoblyApi
-   *  Sets token state.
+  /** Handles site-wide login.
+   *
+   * Logs in a user
+   *
+   * Make sure you await this function to see if any error happens.
    */
-
-  async function handleLogin(formData) {
-    const res = await ShareBnbApi.loginUser(formData);
-    setToken(res.token);
+  async function handleLogin(loginData) {
+    let token = await ShareBnbApi.login(loginData);
+    setToken(token);
   }
 
   /**
@@ -85,19 +93,8 @@ function App() {
    */
 
   async function handleSignup(formData) {
-    const res = await ShareBnbApi.registerNewUser(formData);
-    setToken(res.token);
-  }
-
-  /**
-   *  Function called when ProfileForm data is submitted.
-   *  Function calls JoblyApi static method to update user information.
-   */
-
-  async function handleProfileEdit({ firstName, lastName, email, username }) {
-    const res = await ShareBnbApi.updateUserInfo(username, { firstName, lastName, email });
-    //console.log("What is handleProfileEdit formData",formData, res);
-    setUserInfo(userInfo => ({ ...userInfo, ...res.user }));
+    const token = await ShareBnbApi.registerNewUser(formData);
+    setToken(token);
   }
 
   /**
@@ -107,17 +104,17 @@ function App() {
 
   function handleLogout() {
     localStorage.removeItem("token");
-    setToken(() => null)
+    setToken(() => null);
   }
 
-  if (userInfo.username === undefined && token !== null) {
+  if (!currentUser.infoLoaded) {
     return <h1>Loading!</h1>;
   }
 
 
 
   return (
-    <userContext.Provider value={userInfo}>
+    <userContext.Provider value={currentUser}>
       <div className="App">
         <BrowserRouter>
           <Navigation
@@ -127,7 +124,6 @@ function App() {
           <RoutesList
             handleLogin={handleLogin}
             handleSignup={handleSignup}
-            handleProfileEdit={handleProfileEdit}
           />
         </BrowserRouter>
       </div>

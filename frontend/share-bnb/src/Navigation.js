@@ -1,6 +1,5 @@
 import { React, useContext } from "react";
 import { NavLink, Link } from "react-router-dom";
-import "./Navigation.css";
 import userContext from "./userContext";
 
 /**
@@ -16,8 +15,8 @@ import userContext from "./userContext";
 
 function Navigation({ handleLogout }) {
     const { username } = useContext(userContext);
-    // const isLoggedIn = username !== undefined;
-    const isLoggedIn = true;
+    const isLoggedIn = username !== undefined;
+    // const isLoggedIn = true;
 
     return (
         <nav className="Navigation">

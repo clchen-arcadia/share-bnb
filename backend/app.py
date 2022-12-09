@@ -101,12 +101,13 @@ def signup():
 
         except IntegrityError as e:
             print("ERR: ", e)
-            return jsonify({'error': "Username/email already exists."})
+            return jsonify({'error': "Username/email already exists."}), 400
 
         return jsonify({"token": token}), 201
 
     else:
         return jsonify(errors=form.errors)
+
 
 @app.route('/login', methods=["POST"])
 def login():
@@ -135,15 +136,17 @@ def login():
 
 
 # TODO: write this
-@app.route('/users/')
+@app.route('/users/', methods=["GET"])
 @ensure_admin
 def get_all_users():
     return
 
-@app.route('/users/<username>')
+
+@app.route('/users/<username>', methods=["GET"])
 @ensure_admin_or_correct_user
 def get_user(username):
-    return jsonify({'test': 'you got here'})
+    user = User.query.get_or_404(username)
+    return jsonify({'user': user.to_dict()})
 
 ##############################################################################
 # Routes for Listings
@@ -157,10 +160,12 @@ def get_all_listing():
         listings_output.append(listing.to_dict())
     return jsonify({'listings': listings_output})
 
+
 @app.route('/listings/<int:listing_id>', methods=['GET'])
 def get_listing(listing_id):
     """Get one listing"""
     return jsonify({'listing': Listing.query.get_or_404(listing_id).to_dict()})
+
 
 @app.route('/<username>/listings', methods=['POST'])
 @ensure_logged_in
@@ -184,7 +189,6 @@ def post_new_listing(username):
         description = form_data['description']
         price = form_data['price']
 
-
         # Create new Listing
         new_listing = None
         try:
@@ -202,11 +206,11 @@ def post_new_listing(username):
             print("ERR: ", e)
             return jsonify({'error': 'Problem creating listing'})
 
-
         # Upload all photos to AWS and submit Photo instance to database
         try:
             for idx, file in enumerate(files):
-                file.save(os.path.join(UPLOAD_FOLDER, secure_filename(file.filename)))
+                file.save(os.path.join(UPLOAD_FOLDER,
+                          secure_filename(file.filename)))
 
                 # NOTE: stretch goal to set filenames ourselves like f"username_listingId_photo_#"
                 # new_filename = f"{new_listing.host_username}_{new_listing.id}_photo_{idx}"
