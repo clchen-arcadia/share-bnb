@@ -6,7 +6,7 @@ from flask import (
     g,
     jsonify
 )
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 from sqlalchemy.exc import (IntegrityError)
 from forms import (UserSignup, LoginForm, ListingForm, NewMessageForm)
 from werkzeug.utils import secure_filename
@@ -166,7 +166,6 @@ def get_all_listing():
 
 
 @app.route('/listings/<int:listing_id>', methods=['GET'])
-@cross_origin()
 def get_listing(listing_id):
     """Get one listing (WITH PHOTOS?? no)"""
     # listing = Listing.query.get_or_404(listing_id)
@@ -284,7 +283,6 @@ def update_listing(listing_id):
 
 
 @app.route('/listings/<listing_id>/photos', methods=['GET'])
-@cross_origin()
 def get_photos_for_listing(listing_id):
     listing = Listing.query.get_or_404(listing_id)
     photo_urls = []

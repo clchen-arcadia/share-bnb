@@ -1,4 +1,4 @@
-from models import db, User, Listing, Message
+from models import db, User, Listing, Message, Photo
 from app import db
 
 db.drop_all()
@@ -88,9 +88,51 @@ m4 = Message(
     text="Is this available for this weekend!?!??!?!?"
 )
 
+p1 = Photo(
+    listing_id=1,
+    filepath='uploads/treehouse_1'
+)
+
+p2 = Photo(
+    listing_id=1,
+    filepath='uploads/treehouse_2'
+)
+
+p3 = Photo(
+    listing_id=2,
+    filepath='uploads/bungalow_1'
+)
+
+p4 = Photo(
+    listing_id=2,
+    filepath='uploads/bungalow_2'
+)
+
+p5 = Photo(
+    listing_id=2,
+    filepath='uploads/bungalow_3'
+)
+
+p6 = Photo(
+    listing_id=3,
+    filepath='uploads/studio_1'
+)
+
+p7 = Photo(
+    listing_id=3,
+    filepath='uploads/studio_2'
+)
+
+p8 = Photo(
+    listing_id=3,
+    filepath='uploads/studio_3'
+)
+
 db.session.add_all([u1, u2, u3])
 db.session.commit()
 db.session.add_all([l1, l2, l3])
 db.session.commit()
 db.session.add_all([m1, m2, m3, m4])
+db.session.commit()
+db.session.add_all([p1, p2, p3, p4, p5, p6, p7, p8])
 db.session.commit()
