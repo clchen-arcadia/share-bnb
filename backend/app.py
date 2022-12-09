@@ -3,11 +3,10 @@ from dotenv import load_dotenv
 from flask import (
     Flask,
     request,
-    session,
     g,
     jsonify
 )
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 from sqlalchemy.exc import (IntegrityError)
 from forms import (UserSignup, LoginForm, ListingForm, NewMessageForm)
 from werkzeug.utils import secure_filename
