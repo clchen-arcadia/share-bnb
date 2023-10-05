@@ -29,7 +29,7 @@ function ListingDetailsPage() {
 
       getOneListing();
     },
-    []
+    [id, listing]
   );
 
   return (

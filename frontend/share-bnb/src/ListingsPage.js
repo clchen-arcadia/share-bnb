@@ -17,7 +17,7 @@ function ListingsPage() {
 
       getAllListings();
     },
-    []
+    [listings]
   )
 
   return (
