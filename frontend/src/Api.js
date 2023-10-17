@@ -57,6 +57,11 @@ class ShareBnbApi {
     return res.listings;
   }
 
+  static async getUserListings(userId) {
+    let res = await this.request(`listings/user/${userId}`);
+    return res.listings;
+  }
+
   static async getFirstPhoto(listingId) {
     let res = await this.request(`listings/${listingId}/first_photo`);
     return res.photo;
