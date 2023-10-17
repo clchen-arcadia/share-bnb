@@ -27,7 +27,8 @@ def get_all_urls_from_s3(bucket):
         's3',
         region_name=my_region,
         aws_access_key_id=my_id,
-        aws_secret_access_key=my_secret_key)
+        aws_secret_access_key=my_secret_key
+    )
     public_urls = []
     try:
         # item as : item is {
