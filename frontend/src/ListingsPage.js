@@ -43,7 +43,9 @@ function ListingsPage() {
 
   return (
     <div className="ListingsPage">
-      ListingsPage
+      <h1>
+        Listings
+      </h1>
       <div className="ListingsPage-List">
         {
           pageData.isLoading

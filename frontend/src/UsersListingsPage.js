@@ -48,9 +48,9 @@ function UsersListingsPage() {
 
   return (
     <div className="UsersListingsPage">
-      <div>
-        UsersListingsPage
-      </div>
+      <h1>
+        My Listings
+      </h1>
       {
         pageData.isLoading
           ? <p>Loading!</p>
