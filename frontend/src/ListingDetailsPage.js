@@ -19,7 +19,7 @@ function ListingDetailsPage() {
   );
 
   useEffect(
-    function loadListingsOnMount() {
+    function loadListingOnMount() {
       // console.debug("ListingDetailsPage useEffect load", "pageData=", pageData);
 
       async function getOneListing() {
