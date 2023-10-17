@@ -291,6 +291,14 @@ def get_photos_for_listing(listing_id):
 
     return jsonify({'photos': photo_urls})
 
+@app.route('/listings/<listing_id>/first_photo', methods=['GET'])
+def get_first_photo_for_listing(listing_id):
+    listing = Listing.query.get_or_404(listing_id)
+    photo = Photo.query.filter(Photo.listing_id == listing.id).first_or_404()
+    photo_url = get_image_url(BUCKET, photo.filepath)
+
+    return jsonify({'photo': photo_url})
+
 ##############################################################################
 # Routes for Messages
 
