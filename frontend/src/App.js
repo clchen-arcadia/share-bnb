@@ -72,6 +72,7 @@ function App() {
    *
    * Make sure you await this function to see if any error happens.
    */
+
   async function handleLogin(loginData) {
     let token = await ShareBnbApi.login(loginData);
     setToken(token);
@@ -100,8 +101,6 @@ function App() {
   if (!currentUser.infoLoaded) {
     return <h1>Loading!</h1>;
   }
-
-
 
   return (
     <userContext.Provider value={currentUser}>
