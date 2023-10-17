@@ -56,22 +56,24 @@ def get_all_urls_from_s3(bucket):
     print("[INFO] : The contents inside show_image = ", public_urls)
     return public_urls
 
+
 def get_image_url(bucket, key):
 
     s3_client = boto3.client(
         's3',
         region_name=my_region,
         aws_access_key_id=my_id,
-        aws_secret_access_key=my_secret_key)
+        aws_secret_access_key=my_secret_key
+    )
 
     try:
-
         presigned_url = s3_client.generate_presigned_url(
-                'get_object',
-                Params={'Bucket': bucket, 'Key': key},
-                ExpiresIn=EXPIRE_TIME
-            )
+            'get_object',
+            Params={'Bucket': bucket, 'Key': key},
+            ExpiresIn=EXPIRE_TIME
+        )
     except Exception as e:
         print("ERROR: ", e)
         pass
+
     return presigned_url
