@@ -2,3 +2,5 @@
 node_modules
 venv
 __coverage__
+.vscode
+__pycache__
