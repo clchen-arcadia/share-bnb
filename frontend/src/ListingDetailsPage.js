@@ -5,50 +5,55 @@ import ShareBnbApi from "./Api";
 
 function ListingDetailsPage() {
   const { id } = useParams();
-  const [listing, setListing] = useState(null);
-  const [photos, setPhotos] = useState([]);
+
+  const [pageData, setPageData] = useState({
+    data: null,
+    isLoading: true,
+  });
 
   console.log(
     "ListingDetailsPage rendered with",
-    "listing=",
-    listing,
-    "photos=",
-    photos,
+    "pageData=",
+    pageData,
   );
 
   useEffect(
     function loadListingsOnMount() {
-      console.debug("ListingDetailsPage useEffect load", "listing=", listing);
+      // console.debug("ListingDetailsPage useEffect load", "pageData=", pageData);
 
       async function getOneListing() {
         const listing = await ShareBnbApi.getListing(id);
-        setListing(() => listing);
         const photos = await ShareBnbApi.getListingPhotos(id);
-        setPhotos(() => photos);
+
+        setPageData({
+          data: { listing, photos },
+          isLoading: false
+        })
       }
 
       getOneListing();
     },
-    [id, listing]
+    [id]
   );
 
   return (
     <div className="ListingDetailsPage">
       {
-        listing &&
-        <div>
-          <h2>{listing.title}</h2>
-          <p>{listing.description}</p>
-          {photos.map((p, idx) => (
+        pageData.isLoading
+        ? <p>Loading!</p>
+        : <div>
+          <h2>{pageData.data.listing.title}</h2>
+          <p>{pageData.data.listing.description}</p>
+          {pageData.data.photos.map((p, idx) => (
             <img
               key={idx}
               src={p}
-              alt={`${listing.title} #${idx}`}
+              alt={`${pageData.data.listing.title} #${idx}`}
             >
             </img>
           ))}
-          <div>Address: {listing.address}</div>
-          <div>Price: {listing.price}</div>
+          <div>Address: {pageData.data.listing.address}</div>
+          <div>Price: {pageData.data.listing.price}</div>
         </div>
       }
     </div>
