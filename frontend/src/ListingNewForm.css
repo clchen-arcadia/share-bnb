@@ -1,0 +1,7 @@
+.NewListingForm > * {
+    margin: 10px 50px 10px;
+}
+
+.NewListingForm > label {
+    margin-bottom: 0px;
+}

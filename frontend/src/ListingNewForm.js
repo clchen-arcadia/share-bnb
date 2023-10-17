@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import './ListingNewForm.css';
 
 const BASE_URL = 'http://localhost:5001';
 
@@ -24,7 +25,7 @@ function ListingNewForm() {
   /** Def inline function for submitting form,
    *  uploads file to backend server.
    */
-  const submitForm = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const submitFormData = new FormData();
 
@@ -47,8 +48,8 @@ function ListingNewForm() {
   };
 
   return (
-    <form onSubmit={submitForm}>
-      <label>Title:</label>
+    <form onSubmit={handleSubmit} className="NewListingForm d-flex flex-column">
+      <label className="text-start">Title:</label>
       <input
         name="title"
         type="text"
@@ -56,7 +57,7 @@ function ListingNewForm() {
         onChange={handleChange}
       />
 
-      <label>Description:</label>
+      <label className="text-start">Description:</label>
       <input
         name="description"
         type="text"
@@ -64,7 +65,7 @@ function ListingNewForm() {
         onChange={handleChange}
       />
 
-      <label>Address:</label>
+      <label className="text-start">Address:</label>
       <input
         name="address"
         type="text"
@@ -72,7 +73,7 @@ function ListingNewForm() {
         onChange={handleChange}
       />
 
-      <label>Price Per Night:</label>
+      <label className="text-start">Price Per Night:</label>
       <input
         name="price"
         type="text"
@@ -80,7 +81,7 @@ function ListingNewForm() {
         onChange={handleChange}
       />
 
-      <label>{"Select File(s):"}</label>
+      <label className="text-start">{"Select File(s):"}</label>
       <input
         type="file"
         multiple
