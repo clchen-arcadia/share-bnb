@@ -11,7 +11,7 @@ function ListingsPage() {
 
   useEffect(
     function loadListingsOnMount() {
-      console.debug("ListingPage useEffect load", "pageData]=", pageData);
+      // console.debug("ListingPage useEffect load", "pageData]=", pageData);
 
       async function getAllListings() {
         const listings = await ShareBnbApi.getListings();
