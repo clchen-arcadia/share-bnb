@@ -12,11 +12,11 @@ function UsersListingsPage() {
     data: null,
     isLoading: true,
   });
-  console.log("UsersListingsPage rendered with pageData]=", pageData);
+  console.log("UsersListingsPage rendered with pageData=", pageData);
 
   useEffect(
     function loadListingsOnMount() {
-      // console.debug("ListingPage useEffect load", "pageData]=", pageData);
+      // console.debug("ListingPage useEffect load", "pageData=", pageData);
 
       async function getUserListings() {
         const listings = await ShareBnbApi.getUserListings(curr_user);
@@ -42,7 +42,7 @@ function UsersListingsPage() {
 
       getUserListings();
     },
-    []
+    [curr_user]
   );
 
 
