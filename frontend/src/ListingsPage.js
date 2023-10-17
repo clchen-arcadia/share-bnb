@@ -50,7 +50,6 @@ function ListingsPage() {
             ? <p>Loading!</p>
             : pageData.data.map(
               (l) => {
-                debugger;
                 return <ListingCard
                   key={l.id}
                   listing={l}
