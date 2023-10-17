@@ -29,7 +29,7 @@ class ShareBnbApi {
       console.log("API ERROR TEST:", err);
       console.error("API Error:", err.response);
       let message = err.response.data?.error;
-      if(!message){
+      if (!message) {
         message = err.response.data?.errors;
       }
       throw Array.isArray(message) ? message : [message];
@@ -55,6 +55,11 @@ class ShareBnbApi {
     //console.log(this.token);
     let res = await this.request(`listings`);
     return res.listings;
+  }
+
+  static async getFirstPhoto(listingId) {
+    let res = await this.request(`listings/${listingId}/first_photo`);
+    return res.photo;
   }
 
   //  * Register
