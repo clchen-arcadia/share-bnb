@@ -38,7 +38,8 @@ load_dotenv()
 # if not set there, use development local db.
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ['DATABASE_URL'].replace("postgres://", "postgresql://"))
+    os.environ['DATABASE_URL'].replace("postgres://", "postgresql://")
+)
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 app.config['WTF_CSRF_ENABLED'] = False
@@ -303,7 +304,11 @@ def get_photos_for_listing(listing_id):
 @app.route('/listings/<listing_id>/first_photo', methods=['GET'])
 def get_first_photo_for_listing(listing_id):
     listing = Listing.query.get_or_404(listing_id)
-    photo = Photo.query.filter(Photo.listing_id == listing.id).first_or_404()
+    try:
+        photo = Photo.query.filter(Photo.listing_id == listing.id).first_or_404()
+    except Exception as e:
+        print(e)
+        return jsonify({'photo': 'none'})
     photo_url = get_image_url(BUCKET, photo.filepath)
 
     return jsonify({'photo': photo_url})
