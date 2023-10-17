@@ -1,5 +1,8 @@
 .App {
   text-align: center;
+  background: url('./the-maldives.png');
+  background-size: cover;
+  height: 100vh;
 }
 
 .App-logo {
