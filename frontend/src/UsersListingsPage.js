@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import ListingCard from './ListingCard';
 import ShareBnbApi from './Api';
 import axios from 'axios';
@@ -45,6 +45,12 @@ function UsersListingsPage() {
     [curr_user]
   );
 
+  const navigate = useNavigate();
+
+  function handleClick() {
+    navigate('/listings/new');
+  }
+
 
   return (
     <div className="UsersListingsPage">
@@ -62,7 +68,7 @@ function UsersListingsPage() {
               />;
             })
       }
-      <button>
+      <button onClick={handleClick}>
         Add a Listing
       </button>
     </div>
