@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ShareBnbApi from "./Api";
+import axios from "axios";
 
 
 function ListingDetailsPage() {
@@ -22,13 +23,15 @@ function ListingDetailsPage() {
       // console.debug("ListingDetailsPage useEffect load", "pageData=", pageData);
 
       async function getOneListing() {
-        const listing = await ShareBnbApi.getListing(id);
-        const photos = await ShareBnbApi.getListingPhotos(id);
+        const listingPromise = ShareBnbApi.getListing(id);
+        const photosPromise = ShareBnbApi.getListingPhotos(id);
 
-        setPageData({
-          data: { listing, photos },
-          isLoading: false
-        })
+        await axios.all([listingPromise, photosPromise]).then(axios.spread(function (listing, photos) {
+          setPageData({
+            data: { listing, photos },
+            isLoading: false
+          });
+        }));
       }
 
       getOneListing();
@@ -40,21 +43,21 @@ function ListingDetailsPage() {
     <div className="ListingDetailsPage">
       {
         pageData.isLoading
-        ? <p>Loading!</p>
-        : <div>
-          <h2>{pageData.data.listing.title}</h2>
-          <p>{pageData.data.listing.description}</p>
-          {pageData.data.photos.map((p, idx) => (
-            <img
-              key={idx}
-              src={p}
-              alt={`${pageData.data.listing.title} #${idx}`}
-            >
-            </img>
-          ))}
-          <div>Address: {pageData.data.listing.address}</div>
-          <div>Price: {pageData.data.listing.price}</div>
-        </div>
+          ? <p>Loading!</p>
+          : <div>
+            <h2>{pageData.data.listing.title}</h2>
+            <p>{pageData.data.listing.description}</p>
+            {pageData.data.photos.map((p, idx) => (
+              <img
+                key={idx}
+                src={p}
+                alt={`${pageData.data.listing.title} #${idx}`}
+              >
+              </img>
+            ))}
+            <div>Address: {pageData.data.listing.address}</div>
+            <div>Price: {pageData.data.listing.price}</div>
+          </div>
       }
     </div>
   );
