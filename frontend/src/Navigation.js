@@ -1,3 +1,4 @@
+import './Navigation.css';
 import { React, useContext } from "react";
 import { NavLink, Link } from "react-router-dom";
 import userContext from "./userContext";
@@ -19,30 +20,30 @@ function Navigation({ handleLogout }) {
     // const isLoggedIn = true;
 
     return (
-        <nav className="Navigation">
+        <nav className="Navigation d-flex justify-content-between">
             <div className="Navigation-homepage-link">
-                <Link to="/">ShareBnB</Link>
+                <Link to="/" className="Link">ShareBnB</Link>
             </div>
             {
                 isLoggedIn
                     ?
                     <div className="Navigation-data-links">
-                        <NavLink to="/listings">Listings</NavLink>
-                        <NavLink to="/profile">Profile</NavLink>
-                        <NavLink to={`/messages/${data?.username}`}>Messages</NavLink>
-                        <NavLink to={`/listings/${data?.username}`}>My Listings</NavLink>
-                        <NavLink
-                            to="/logout"
-                            onClick={handleLogout}
-                            className="Navigation-data-links-logout"
-                        >
-                            Logout {data?.username}
-                        </NavLink>
+                            <NavLink to="/listings" className="Link">Listings</NavLink>
+                            <NavLink to="/profile" className="Link">Profile</NavLink>
+                            <NavLink to={`/messages/${data?.username}/any`} className="Link">Messages</NavLink>
+                            <NavLink to={`/listings/user/${data?.username}`} className="Link">My Listings</NavLink>
+                            <NavLink
+                                to="/logout"
+                                onClick={handleLogout}
+                                className="Navigation-data-links-logout"
+                            >
+                                Logout {data?.username}
+                            </NavLink>
                     </div>
                     :
                     <div className="Navigation-data-links">
-                        <NavLink to="/login">Login</NavLink>
-                        <NavLink to="/signup">Signup</NavLink>
+                        <NavLink to="/login" className="Link">Login</NavLink>
+                        <NavLink to="/signup" className="Link">Signup</NavLink>
                     </div>
             }
         </nav>
