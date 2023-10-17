@@ -176,6 +176,14 @@ def get_listing(listing_id):
     return jsonify({'listing': Listing.query.get_or_404(listing_id).to_dict()})
 
 
+@app.route('/listings/user/<username>', methods=['GET'])
+def get_user_listings(username):
+    listings_output = []
+    for listing in Listing.query.filter(Listing.host_username == username).all():
+        listings_output.append(listing.to_dict())
+    return jsonify({'listings': listings_output})
+
+
 @app.route('/<username>/listings', methods=['POST'])
 @ensure_logged_in
 @ensure_correct_user
@@ -290,6 +298,7 @@ def get_photos_for_listing(listing_id):
         photo_urls.append(get_image_url(BUCKET, photo.filepath))
 
     return jsonify({'photos': photo_urls})
+
 
 @app.route('/listings/<listing_id>/first_photo', methods=['GET'])
 def get_first_photo_for_listing(listing_id):
