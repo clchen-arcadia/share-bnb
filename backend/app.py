@@ -192,7 +192,6 @@ def post_new_listing(username):
     """Add a new listing, consumes request.files for photos
     and consumes request.form for the rest of the form
     """
-
     files = request.files.getlist("file")
 
     form_data = MultiDict(mapping=request.form)
@@ -231,15 +230,15 @@ def post_new_listing(username):
                           secure_filename(file.filename)))
 
                 # NOTE: stretch goal to set filenames ourselves like f"username_listingId_photo_#"
-                # new_filename = f"{new_listing.host_username}_{new_listing.id}_photo_{idx}"
-                # os.rename(f"{UPLOAD_FOLDER}/{file.filename}", new_filename)
+                new_filename = f"{new_listing.host_username}_listing_{new_listing.id}_photo_{idx}"
+                os.rename(f"{UPLOAD_FOLDER}/{file.filename}", f"{UPLOAD_FOLDER}/{new_filename}")
 
-                upload_file(f"uploads/{file.filename}", BUCKET)
+                upload_file(f"uploads/{new_filename}", BUCKET)
 
                 try:
                     Photo.create_new_photo(
                         listing_id=new_listing.id,
-                        filepath=f"uploads/{file.filename}"
+                        filepath=f"uploads/{new_filename}"
                     )
                 except IntegrityError as e:
                     return jsonify({
