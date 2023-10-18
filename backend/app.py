@@ -168,7 +168,7 @@ def get_all_listing():
 
 @app.route('/listings/<int:listing_id>', methods=['GET'])
 def get_listing(listing_id):
-    """Get one listing (WITH PHOTOS?? no)"""
+    """Get one listing"""
     # listing = Listing.query.get_or_404(listing_id)
     # photos = listing.photos
     # listing_with_photos = listing.to_dict()
@@ -178,6 +178,8 @@ def get_listing(listing_id):
 
 
 @app.route('/listings/user/<username>', methods=['GET'])
+@ensure_logged_in
+@ensure_correct_user
 def get_user_listings(username):
     listings_output = []
     for listing in Listing.query.filter(Listing.host_username == username).all():
