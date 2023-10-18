@@ -6,7 +6,6 @@ my_secret_key = os.getenv('SECRET_KEY')
 
 
 def create_token(user):
-    breakpoint()
 
     username = user.username
     is_admin = user.is_admin
