@@ -14,11 +14,11 @@ class ShareBnbApi {
 
   static token = localStorage.getItem("token");
 
-  static async request(endpoint, data = {}, method = "get") {
+  static async request(endpoint, data = {}, method = 'GET') {
     console.debug("API Call:", endpoint, data, method);
 
     const url = `${BASE_URL}/${endpoint}`;
-    const headers = { token: ShareBnbApi.token };
+    const headers = {token: ShareBnbApi.token};
     const params = (method === "get")
       ? data
       : {};
@@ -37,7 +37,7 @@ class ShareBnbApi {
   }
 
   // Individual API routes
-  // TODO: START HERE
+
   /** Get details on a specific listing */
 
   static async getListing(listingId) {
@@ -50,7 +50,8 @@ class ShareBnbApi {
     return res.photos;
   }
 
-  /**Get a list of all listings */
+  /** Get a list of all listings */
+
   static async getListings() {
     //console.log(this.token);
     let res = await this.request(`listings`);
@@ -62,6 +63,8 @@ class ShareBnbApi {
     return res.listings;
   }
 
+  /** Get first photo for a listing */
+
   static async getFirstPhoto(listingId) {
     let res = await this.request(`listings/${listingId}/first_photo`);
     return res.photo;
@@ -71,6 +74,7 @@ class ShareBnbApi {
   //  * user must include { username, password, firstName, lastName, email }
   //  *
   //  * Returns JWT token which can be used to authenticate further requests.
+
   static async registerNewUser(newUserData) {
     let res = await this.request('signup', newUserData, 'POST');
     return res.token;
@@ -79,12 +83,13 @@ class ShareBnbApi {
   /** Get token for login from username, password. */
 
   static async login(data) {
-    let res = await this.request(`login`, data, "post");
+    let res = await this.request(`login`, data, 'POST');
     console.log("res ------->", res);
     return res.token;
   }
 
   /** Get the current user. */
+
   static async getCurrentUser(username) {
     let res = await this.request(`users/${username}`);
     return res.user;
@@ -97,6 +102,12 @@ class ShareBnbApi {
     return res;
   }
 
+  // Post a new listing
+
+  static async postNewListing(username, submitFormData) {
+    let res = await this.request(`${username}/listings`, submitFormData, 'POST');
+    return res;
+  }
 
 }
 

@@ -1,8 +1,11 @@
 import { useState } from 'react';
-import axios from 'axios';
 import './ListingNewForm.css';
+import ShareBnbApi from './Api';
+import { useContext } from 'react';
+import userContext from './userContext';
+import { useNavigate } from 'react-router-dom';
+import Alert from './Alert';
 
-const BASE_URL = 'http://localhost:5001';
 
 function ListingNewForm() {
   const [formData, setFormData] = useState({
@@ -13,6 +16,13 @@ function ListingNewForm() {
   });
   const [selectedFiles, setSelectedFiles] = useState([]);
   console.log("FormFileTest rendered with states=", selectedFiles, formData);
+
+  const [errors, setErrors] = useState([]);
+
+  const context = useContext(userContext);
+  const username = context?.data?.username;
+
+  const navigate = useNavigate();
 
   function handleChange(evt) {
     const { name, value } = evt.target;
@@ -25,71 +35,85 @@ function ListingNewForm() {
   /** Def inline function for submitting form,
    *  uploads file to backend server.
    */
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  async function handleSubmit(evt) {
+    evt.preventDefault();
     const submitFormData = new FormData();
 
     for (let file of selectedFiles) {
       submitFormData.append('file', file);
     }
 
-    for(let key in formData){
-      submitFormData.append(key, formData[key])
-
+    for (let key in formData) {
+      submitFormData.append(key, formData[key]);
     }
 
-    axios({
-      method: 'post',
-      url: `${BASE_URL}/upload`,
-      data: submitFormData,
-    })
-      .then(response => console.log(response))
-      .catch(errors => console.log(errors));
-  };
+    const res = await ShareBnbApi.postNewListing(username, submitFormData);
+
+    if (res.errors !== undefined) {
+      const errorMessages = [];
+      for (let key in res.errors) {
+        errorMessages.push(
+          `${key}: ${res.errors[key]}`
+        );
+      }
+      setErrors(errorMessages);
+    }
+    else if (res.success !== undefined) {
+      alert('Success: created new listing');
+      navigate(`/listings/user/${username}`);
+    }
+    else {
+      setErrors(['Sorry, something went wrong']);
+    }
+  }
+
 
   return (
-    <form onSubmit={handleSubmit} className="NewListingForm d-flex flex-column">
-      <label className="text-start">Title:</label>
-      <input
-        name="title"
-        type="text"
-        value={formData.title}
-        onChange={handleChange}
-      />
+    <div>
+      <form onSubmit={handleSubmit} className="NewListingForm d-flex flex-column">
+        <label className="text-start">{`Title: (req.)`}</label>
+        <input
+          name="title"
+          type="text"
+          value={formData.title}
+          onChange={handleChange}
+        />
 
-      <label className="text-start">Description:</label>
-      <input
-        name="description"
-        type="text"
-        value={formData.description}
-        onChange={handleChange}
-      />
+        <label className="text-start">{`Description: (req.)`}</label>
+        <input
+          name="description"
+          type="text"
+          value={formData.description}
+          onChange={handleChange}
+        />
 
-      <label className="text-start">Address:</label>
-      <input
-        name="address"
-        type="text"
-        value={formData.address}
-        onChange={handleChange}
-      />
+        <label className="text-start">{`Address: (req.)`}</label>
+        <input
+          name="address"
+          type="text"
+          value={formData.address}
+          onChange={handleChange}
+        />
 
-      <label className="text-start">Price Per Night:</label>
-      <input
-        name="price"
-        type="text"
-        value={formData.price}
-        onChange={handleChange}
-      />
+        <label className="text-start">{`Price Per Night: (req., number)`}</label>
+        <input
+          name="price"
+          type="text"
+          value={formData.price}
+          onChange={handleChange}
+        />
 
-      <label className="text-start">{"Select File(s):"}</label>
-      <input
-        type="file"
-        multiple
-        onChange={(e) => setSelectedFiles(() => e.target.files)}
-      />
+        <label className="text-start">{`Select File(s): (opt.)`}</label>
+        <input
+          type="file"
+          multiple
+          onChange={(e) => setSelectedFiles(() => e.target.files)}
+        />
 
-      <button>Submit!</button>
-    </form>
+        <button>Submit!</button>
+      </form>
+      {errors.map((e, index) => <Alert key={index} err={e} />)}
+    </div>
   );
 }
 
