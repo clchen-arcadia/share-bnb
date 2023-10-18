@@ -22,4 +22,4 @@ def create_token(user):
         return token
 
     except Exception as e:
-        return e
+        raise e
