@@ -17,7 +17,8 @@ def upload_file(file_name, bucket):
         's3',
         region_name=my_region,
         aws_access_key_id=my_id,
-        aws_secret_access_key=my_secret_key)
+        aws_secret_access_key=my_secret_key
+    )
     response = s3_client.upload_file(file_name, bucket, object_name)
     return response
 
