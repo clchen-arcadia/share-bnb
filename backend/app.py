@@ -11,6 +11,7 @@ from sqlalchemy.exc import (IntegrityError)
 from forms import (UserSignup, LoginForm, ListingForm, NewMessageForm)
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import MultiDict
+from werkzeug.exceptions import NotFound
 import jwt
 
 from models import db, connect_db, User, Listing, Message, Photo
@@ -307,8 +308,8 @@ def get_first_photo_for_listing(listing_id):
     listing = Listing.query.get_or_404(listing_id)
     try:
         photo = Photo.query.filter(Photo.listing_id == listing.id).first_or_404()
-    except Exception as e:
-        print(e)
+    except NotFound as e:
+        print('Not Found', e)
         return jsonify({'photo': 'none'})
     photo_url = get_image_url(BUCKET, photo.filepath)
 
