@@ -1,6 +1,8 @@
 import jwt
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 my_secret_key = os.getenv('SECRET_KEY')
 
@@ -16,9 +18,6 @@ def create_token(user):
         'is_admin': is_admin,
         'is_host': is_host
     }
-
-    if isinstance(my_secret_key, str) is not True:
-        raise TypeError('Secret Key in env file not a string Code: C06')
 
     token = jwt.encode(
         payload,
