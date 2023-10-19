@@ -15,7 +15,7 @@ function Homepage() {
         isLoggedIn
           ? <p>Welcome back {firstName}!</p>
           : <p>
-            Hint: Sign up with a username/password/email (you can use 'email@email.com') or sign in with:
+            Hint: Sign up with a username/password/email (you can use 'something@email.com') or sign in with:
             <br />username: username
             <br />password: password
           </p>
