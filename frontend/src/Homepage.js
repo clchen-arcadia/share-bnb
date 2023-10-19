@@ -16,7 +16,7 @@ function Homepage() {
           ? <p>Welcome back {firstName}!</p>
           : <p>
             Hint: Sign up with a username/password/email (you can use 'something@email.com') or sign in with:
-            <br />username: username
+            <br />username: u1
             <br />password: password
           </p>
       }
