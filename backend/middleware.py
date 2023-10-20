@@ -37,8 +37,10 @@ def ensure_admin_or_correct_user(func):
     def validate_admin_user(*args, **kwargs):
         if (g.user is None):
             return jsonify({"error": "User not authorized."}), 401
-        if (g.user.get('is_admin') is True
-                or g.user.get('username') == kwargs['username']):
+        if (
+            g.user.get('is_admin') is True
+            or g.user.get('username') == kwargs['username']
+        ):
             return func(*args, **kwargs)
         else:
             return jsonify({"error": "User not authorized."}), 401
