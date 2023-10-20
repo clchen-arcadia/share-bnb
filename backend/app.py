@@ -264,18 +264,19 @@ def post_new_listing(username):
                 })
 
             try:
-                upload_file(new_full_filepath, BUCKET)
+                amazon_s3_filepath = os.path.join(UPLOAD_FOLDER, new_filename)
+                upload_file(amazon_s3_filepath, BUCKET)
             except Exception as e:
                 return jsonify({
                     'error': 'Problem uploading photo',
                     'message': e.__repr__(),
-                    'help': f"CWD: {os.getcwd()}, attempting to upload {new_full_filepath} to {BUCKET}"
+                    'help': f"CWD: {os.getcwd()}, attempting to upload {amazon_s3_filepath} to {BUCKET}"
                 })
 
             try:
                 Photo.create_new_photo(
                     listing_id=new_listing.id,
-                    filepath=f"uploads/{new_filename}"
+                    filepath=amazon_s3_filepath
                 )
                 db.session.commit()
             except Exception as e:
