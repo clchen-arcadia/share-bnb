@@ -62,7 +62,8 @@ def add_user_to_g():
                 token,
                 app.config['SECRET_KEY'],
                 algorithms=['HS256'],
-                options={"verify_signature": True})
+                options={"verify_signature": True}
+            )
             g.user = payload
         except jwt.exceptions.InvalidSignatureError as e:
             print("INVALID SIG, ERR IS", e)
@@ -234,7 +235,8 @@ def post_new_listing(username):
 
                 # NOTE: stretch goal to set filenames ourselves like f"username_listingId_photo_#"
                 new_filename = f"{new_listing.host_username}_listing_{new_listing.id}_photo_{idx}"
-                os.rename(f"{UPLOAD_FOLDER}/{file.filename}", f"{UPLOAD_FOLDER}/{new_filename}")
+                os.rename(f"{UPLOAD_FOLDER}/{file.filename}",
+                          f"{UPLOAD_FOLDER}/{new_filename}")
 
                 upload_file(f"uploads/{new_filename}", BUCKET)
 
@@ -307,7 +309,8 @@ def get_photos_for_listing(listing_id):
 def get_first_photo_for_listing(listing_id):
     listing = Listing.query.get_or_404(listing_id)
     try:
-        photo = Photo.query.filter(Photo.listing_id == listing.id).first_or_404()
+        photo = Photo.query.filter(
+            Photo.listing_id == listing.id).first_or_404()
     except NotFound as e:
         print('Not Found', e)
         return jsonify({'photo': 'none'})
