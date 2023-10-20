@@ -231,25 +231,18 @@ def post_new_listing(username):
         os.mkdir(UPLOAD_FOLDER)
 
         for idx, file in enumerate(files):
-            # breakpoint()
-
-            # full_filepath = os.path.join(
-            #     os.getcwd(),
-            #     UPLOAD_FOLDER,
-            #     secure_filename(file.filename)
-            # )
 
             rel_filepath = os.path.join(
                 UPLOAD_FOLDER,
                 secure_filename(file.filename)
             )
+
             try:
                 file.save(rel_filepath)
             except Exception as e:
                 return jsonify({
-                    'error': 'Problem saving files to backend',
+                    'errors': 'Problem saving files to backend',
                     'message': e.__repr__(),
-                    # 'help': f"CWD: {os.getcwd()}, attempting to save to {full_filepath}, test={file.__class__} test2={os.listdir()}"
                 })
 
             try:
@@ -265,9 +258,8 @@ def post_new_listing(username):
                 )
             except Exception as e:
                 return jsonify({
-                    'error': 'Problem renaming files in backend',
+                    'errors': 'Problem renaming files in backend',
                     'message': e.__repr__(),
-                    # 'help': f"CWD: {os.getcwd()}, attempting to save to rename {full_filepath} to {new_rel_filepath}"
                 })
 
             try:
@@ -275,9 +267,8 @@ def post_new_listing(username):
                 upload_file(new_rel_filepath, BUCKET)
             except Exception as e:
                 return jsonify({
-                    'error': 'Problem uploading photo',
+                    'errors': 'Problem uploading photo',
                     'message': e.__repr__(),
-                    # 'help': f"CWD: {os.getcwd()}, attempting to upload {amazon_s3_filepath} to {BUCKET}"
                 })
 
             try:
@@ -288,8 +279,8 @@ def post_new_listing(username):
                 db.session.commit()
             except Exception as e:
                 return jsonify({
-                    'error': 'Problem entering photo to database',
-                    'message': e.__repr__()
+                    'errors': 'Problem entering photo to database',
+                    'message': e.__repr__(),
                 })
 
         try:
@@ -298,10 +289,10 @@ def post_new_listing(username):
             os.rmdir(UPLOAD_FOLDER)
         except Exception as e:
             return jsonify({
-                    'error': 'Problem cleaning up files',
+                    'errors': 'Problem cleaning up files',
                     'message': e.__repr__()
                 })
-        
+
         return jsonify({'success': 'created new listing'}), 201
 
     else:
@@ -353,15 +344,14 @@ def get_photos_for_listing(listing_id):
 @app.route('/listings/<listing_id>/first_photo', methods=['GET'])
 def get_first_photo_for_listing(listing_id):
     listing = Listing.query.get_or_404(listing_id)
-    try:
-        photo = Photo.query.filter(
-            Photo.listing_id == listing.id).first_or_404()
-    except NotFound as e:
-        print('Not Found', e)
+    photos = listing.photos
+    if len(photos) == 0:
         return jsonify({'photo': 'none'})
-    photo_url = get_image_url(BUCKET, photo.filepath)
+    else:
+        first_photo = photos[0]
+        first_photo_url = get_image_url(BUCKET, first_photo.filepath)
 
-    return jsonify({'photo': photo_url})
+        return jsonify({'photo': first_photo_url})
 
 ##############################################################################
 # Routes for Messages

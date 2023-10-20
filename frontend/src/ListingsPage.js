@@ -3,6 +3,8 @@ import ListingCard from './ListingCard';
 import ShareBnbApi from './Api';
 import axios from 'axios';
 
+import placeholder from './placeholder-photo.jpeg';
+
 function ListingsPage() {
   const [pageData, setPageData] = useState({
     data: null,
@@ -26,7 +28,7 @@ function ListingsPage() {
         await axios.all(photoPromises).then(axios.spread(function (...photos) {
           for (let i = 0; i < listings.length; i++) {
             const listing = listings[i];
-            listing.photo = photos[i];
+            listing.photo = photos[i] !== 'none' ? photos[i]: placeholder;
           }
         }));
 
