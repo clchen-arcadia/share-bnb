@@ -229,6 +229,7 @@ def post_new_listing(username):
 
         # Upload all photos to AWS and submit Photo instance to database
         for idx, file in enumerate(files):
+            # breakpoint()
             full_filepath = os.path.join(
                 os.getcwd(),
                 UPLOAD_FOLDER,
@@ -242,7 +243,7 @@ def post_new_listing(username):
                 return jsonify({
                     'error': 'Problem saving files to backend',
                     'message': e.__repr__(),
-                    'help': f"CWD: {os.getcwd()}, attempting to save to {full_filepath}, test={file.__class__}"
+                    'help': f"CWD: {os.getcwd()}, attempting to save to {full_filepath}, test={file.__class__} test2={os.listdir()}"
                 })
 
             try:
