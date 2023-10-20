@@ -49,6 +49,8 @@ function ListingNewForm() {
 
     const res = await ShareBnbApi.postNewListing(username, submitFormData);
 
+    console.warn("ERR=", res);
+
     if (res.errors !== undefined) {
       const errorMessages = [];
       for (let key in res.errors) {
