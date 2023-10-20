@@ -229,7 +229,6 @@ def post_new_listing(username):
 
         # Upload all photos to AWS and submit Photo instance to database
         for idx, file in enumerate(files):
-            breakpoint()
             full_filepath = os.path.join(
                 os.getcwd(),
                 UPLOAD_FOLDER,
