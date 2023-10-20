@@ -229,40 +229,47 @@ def post_new_listing(username):
 
         # Upload all photos to AWS and submit Photo instance to database
         for idx, file in enumerate(files):
+            full_filepath = os.path.join(
+                os.getcwd(),
+                UPLOAD_FOLDER,
+                secure_filename(file.filename)
+            )
             try:
                 file.save(
-                    os.path.join(
-                        UPLOAD_FOLDER,
-                        secure_filename(file.filename)
-                    )
+                    full_filepath
                 )
             except Exception as e:
                 return jsonify({
                     'error': 'Problem saving files to backend',
                     'message': e.__repr__(),
-                    'help': f"CWD: {os.getcwd()}, attempting to save to {UPLOAD_FOLDER + secure_filename(file.filename)}"
+                    'help': f"CWD: {os.getcwd()}, attempting to save to {full_filepath}"
                 })
 
             try:
                 new_filename = f"user_{new_listing.host_username}_listing_{new_listing.id}_photo_{idx}"
+                new_full_filepath = os.path.join(
+                    os.getcwd(),
+                    UPLOAD_FOLDER,
+                    new_filename
+                )
                 os.rename(
-                    f"{UPLOAD_FOLDER}/{file.filename}",
-                    f"{UPLOAD_FOLDER}/{new_filename}"
+                    full_filepath,
+                    new_full_filepath
                 )
             except Exception as e:
                 return jsonify({
                     'error': 'Problem renaming files in backend',
                     'message': e.__repr__(),
-                    'help': f"CWD: {os.getcwd()}, attempting to save to rename {UPLOAD_FOLDER}/{file.filename} to {UPLOAD_FOLDER}/{new_filename}"
+                    'help': f"CWD: {os.getcwd()}, attempting to save to rename {full_filepath} to {new_full_filepath}"
                 })
 
             try:
-                upload_file(f"uploads/{new_filename}", BUCKET)
+                upload_file(new_full_filepath, BUCKET)
             except Exception as e:
                 return jsonify({
                     'error': 'Problem uploading photo',
                     'message': e.__repr__(),
-                    'help': f"CWD: {os.getcwd()}, attempting to upload uploads/{new_filename} to {BUCKET}"
+                    'help': f"CWD: {os.getcwd()}, attempting to upload {new_full_filepath} to {BUCKET}"
                 })
 
             try:
@@ -276,7 +283,6 @@ def post_new_listing(username):
                     'error': 'Problem entering photo to database',
                     'message': e.__repr__()
                 })
-
 
             return jsonify({'success': 'created new listing'}), 201
 
