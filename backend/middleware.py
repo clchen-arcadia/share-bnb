@@ -1,7 +1,9 @@
 from flask import g, jsonify
 from functools import wraps
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 from models import Listing
 
