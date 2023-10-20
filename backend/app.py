@@ -201,9 +201,6 @@ def post_new_listing(username):
     form_data = MultiDict(mapping=request.form)
     form = ListingForm(form_data)
 
-    # data = MultiDict(mapping=request.json)
-    # form = ListingForm(data)
-
     if form.validate():
         title = form_data['title']
         address = form_data['address']
@@ -225,42 +222,66 @@ def post_new_listing(username):
 
         except IntegrityError as e:
             print("ERR: ", e)
-            return jsonify({'error': 'Problem creating listing'})
-
-        # Upload all photos to AWS and submit Photo instance to database
-        try:
-            for idx, file in enumerate(files):
-                file.save(os.path.join(UPLOAD_FOLDER,
-                          secure_filename(file.filename)))
-
-                # NOTE: stretch goal to set filenames ourselves like f"username_listingId_photo_#"
-                new_filename = f"{new_listing.host_username}_listing_{new_listing.id}_photo_{idx}"
-                os.rename(f"{UPLOAD_FOLDER}/{file.filename}",
-                          f"{UPLOAD_FOLDER}/{new_filename}")
-
-                upload_file(f"uploads/{new_filename}", BUCKET)
-
-                try:
-                    Photo.create_new_photo(
-                        listing_id=new_listing.id,
-                        filepath=f"uploads/{new_filename}"
-                    )
-                except IntegrityError as e:
-                    return jsonify({
-                        'error': 'Problem entering photo to database',
-                        'message': e.__repr__()
-                    })
-
-        except Exception as e:
             return jsonify({
-                'error': 'Problem uploading images to AWS',
+                'error': 'Problem creating listing',
                 'message': e.__repr__()
             })
 
-        db.session.commit()
-        return jsonify({'success': 'created new listing'}), 201
+        # Upload all photos to AWS and submit Photo instance to database
+        for idx, file in enumerate(files):
+            try:
+                file.save(
+                    os.path.join(
+                        UPLOAD_FOLDER,
+                        secure_filename(file.filename)
+                    )
+                )
+            except Exception as e:
+                return jsonify({
+                    'error': 'Problem saving files to backend',
+                    'message': e.__repr__(),
+                    'help': f"CWD: {os.getcwd()}, attempting to save to {UPLOAD_FOLDER + secure_filename(file.filename)}"
+                })
 
-    return jsonify(errors=form.errors)
+            try:
+                new_filename = f"user_{new_listing.host_username}_listing_{new_listing.id}_photo_{idx}"
+                os.rename(
+                    f"{UPLOAD_FOLDER}/{file.filename}",
+                    f"{UPLOAD_FOLDER}/{new_filename}"
+                )
+            except Exception as e:
+                return jsonify({
+                    'error': 'Problem renaming files in backend',
+                    'message': e.__repr__(),
+                    'help': f"CWD: {os.getcwd()}, attempting to save to rename {UPLOAD_FOLDER}/{file.filename} to {UPLOAD_FOLDER}/{new_filename}"
+                })
+
+            try:
+                upload_file(f"uploads/{new_filename}", BUCKET)
+            except Exception as e:
+                return jsonify({
+                    'error': 'Problem uploading photo',
+                    'message': e.__repr__(),
+                    'help': f"CWD: {os.getcwd()}, attempting to upload uploads/{new_filename} to {BUCKET}"
+                })
+
+            try:
+                Photo.create_new_photo(
+                    listing_id=new_listing.id,
+                    filepath=f"uploads/{new_filename}"
+                )
+                db.session.commit()
+            except Exception as e:
+                return jsonify({
+                    'error': 'Problem entering photo to database',
+                    'message': e.__repr__()
+                })
+
+
+            return jsonify({'success': 'created new listing'}), 201
+
+    else:
+        return jsonify(errors=form.errors)
 
 
 @app.route('/listings/<listing_id>', methods=['DELETE'])
