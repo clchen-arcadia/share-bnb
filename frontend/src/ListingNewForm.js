@@ -115,7 +115,7 @@ function ListingNewForm() {
 
         <button>Submit!</button>
       </form>
-      <p>Hint: Save an image from Google,
+      <p>Hint: Save an image from Google, 
       <a
                 href={googleImgLink}
                 target="_blank"
