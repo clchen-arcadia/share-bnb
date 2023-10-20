@@ -6,6 +6,7 @@ import userContext from './userContext';
 import { useNavigate } from 'react-router-dom';
 import Alert from './Alert';
 
+const googleImgLink = 'https://www.google.com/search?q=airbnb%20room&tbm=isch&tbs=isz:i&hl=en&sa=X&ved=0CAQQpwVqFwoTCOCpt5aShYIDFQAAAAAdAAAAABAD&biw=1425&bih=758'
 
 function ListingNewForm() {
   const [formData, setFormData] = useState({
@@ -114,6 +115,16 @@ function ListingNewForm() {
 
         <button>Submit!</button>
       </form>
+      <p>Hint: Save an image from Google,
+      <a
+                href={googleImgLink}
+                target="_blank"
+                rel="noreferrer noopener"
+                className='buttonExtA'
+      >
+      here
+      </a>
+      , to upload photo(s)</p>
       {errors.map((e, index) => <Alert key={index} err={e} />)}
     </div>
   );
