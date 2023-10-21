@@ -37,7 +37,7 @@ function Navigation({ handleLogout }) {
                                 onClick={handleLogout}
                                 className="Navigation-data-links-logout"
                             >
-                                Logout {data?.username}
+                                Logout&nbsp;{data?.username}
                             </NavLink>
                     </div>
                     :
