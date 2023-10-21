@@ -31,7 +31,7 @@ function Navigation({ handleLogout }) {
                             <NavLink to="/listings" className="Link">Listings</NavLink>
                             <NavLink to="/profile" className="Link">Profile</NavLink>
                             <NavLink to={`/messages/${data?.username}/any`} className="Link">Messages</NavLink>
-                            <NavLink to={`/listings/user/${data?.username}`} className="Link">My Listings</NavLink>
+                            <NavLink to={`/listings/user/${data?.username}`} className="Link">My&nbsp;Listings</NavLink>
                             <NavLink
                                 to="/logout"
                                 onClick={handleLogout}
