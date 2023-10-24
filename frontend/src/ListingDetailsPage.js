@@ -49,6 +49,7 @@ function ListingDetailsPage() {
             <p>{pageData.data.listing.description}</p>
             {pageData.data.photos.map((p, idx) => (
               <img
+                className="listingImage"
                 key={idx}
                 src={p}
                 alt={`${pageData.data.listing.title} #${idx}`}

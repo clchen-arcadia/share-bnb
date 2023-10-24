@@ -12,6 +12,7 @@ function ListingCard({ listing }) {
     <div onClick={handleClick} className="ListingCard">
       <div className="card-body">
         <img
+          className="listingImage"
           src={listing.photo}
           alt={listing.title}
         />
