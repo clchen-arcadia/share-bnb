@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Alert from './Alert';
 
 const initialState = {
-  username: "",
-  password: "",
+  username: "username",
+  password: "password",
 };
 
 function UserLoginForm({ onSubmit }) {
