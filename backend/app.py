@@ -11,7 +11,6 @@ from sqlalchemy.exc import (IntegrityError)
 from forms import (UserSignup, LoginForm, ListingForm, NewMessageForm)
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import MultiDict
-from werkzeug.exceptions import NotFound
 import jwt
 
 from models import db, connect_db, User, Listing, Message, Photo
@@ -47,6 +46,7 @@ app.config['WTF_CSRF_ENABLED'] = False
 
 connect_db(app)
 
+
 ##############################################################################
 # app.before_requests---these run before every request!
 
@@ -71,6 +71,7 @@ def add_user_to_g():
 
     else:
         g.user = None
+
 
 ##############################################################################
 # Routes for authentication/authorization
@@ -138,6 +139,7 @@ def login():
             return jsonify({'error': 'Invalid username/password'}), 400
     return jsonify(errors=form.errors)
 
+
 ##############################################################################
 # Routes for Users
 
@@ -154,6 +156,7 @@ def get_all_users():
 def get_user(username):
     user = User.query.get_or_404(username)
     return jsonify({'user': user.to_dict()})
+
 
 ##############################################################################
 # Routes for Listings
@@ -193,7 +196,8 @@ def get_user_listings(username):
 @ensure_logged_in
 @ensure_correct_user
 def post_new_listing(username):
-    """Add a new listing, consumes request.files for photos
+    """
+    Add a new listing. Consumes request.files for photos
     and consumes request.form for the rest of the form
     """
     files = request.files.getlist("file")
@@ -248,7 +252,6 @@ def post_new_listing(username):
             try:
                 new_filename = f"user_{new_listing.host_username}_listing_{new_listing.id}_photo_{idx}"
                 new_rel_filepath = os.path.join(
-                    # os.getcwd(),
                     UPLOAD_FOLDER,
                     new_filename
                 )
@@ -263,7 +266,6 @@ def post_new_listing(username):
                 })
 
             try:
-                # amazon_s3_filepath = os.path.join(UPLOAD_FOLDER, new_filename)
                 upload_file(new_rel_filepath, BUCKET)
             except Exception as e:
                 return jsonify({
@@ -353,6 +355,7 @@ def get_first_photo_for_listing(listing_id):
 
         return jsonify({'photo': first_photo_url})
 
+
 ##############################################################################
 # Routes for Messages
 
@@ -398,5 +401,6 @@ def send_new_message(username):
 
     else:
         return jsonify(errors=form.errors)
+
 
 ##############################################################################
