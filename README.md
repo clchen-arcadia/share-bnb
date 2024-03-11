@@ -1,7 +1,7 @@
 # ShareBnB
 AirBnB clone built in Flask Python, React.js, and AWS S3
 
-## ***For LinkedIn REACH 2024: Question 3 refers to backend/app.py, post_new_listing(), line 198***
+### ***For LinkedIn REACH 2024: Question 3 refers to backend/app.py, post_new_listing(), line 198***
 
 ## Live Demo: https://share-bnb.netlify.app/
 ![ShareBnB homepage](./homepage-screenshot.png "ShareBnB")
