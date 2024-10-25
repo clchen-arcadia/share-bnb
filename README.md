@@ -1,4 +1,3 @@
-#### ***For LinkedIn REACH 2024: Question 3 refers to backend/app.py, post_new_listing(), line 198***
 # ShareBnB
 
 AirBnB clone built in Flask Python, React.js, and AWS S3
